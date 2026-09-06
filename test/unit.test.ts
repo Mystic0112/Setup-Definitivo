@@ -143,12 +143,13 @@ describe("mcp", () => {
 
       const result = await addCodexMcp(mcpItem("novo"), file, false);
       const updated = await fs.readFile(file, "utf-8");
-      const backup = (await fs.readdir(dir)).find((name) => name.startsWith("config.toml.bak-"));
+      const backup = result.match(/backup: (.+)\)/)?.[1];
 
+      expect(backup).toBeTruthy();
       expect(updated.startsWith(original)).toBe(true);
       expect(updated.slice(original.length)).toContain(codexMcpBlock(mcpItem("novo")));
-      expect(await fs.readFile(path.join(dir, backup!), "utf-8")).toBe(original);
-      expect(result).toContain(`backup: ${path.join(dir, backup!)}`);
+      // backup no dir central, não ao lado do config.toml do usuário
+      expect(await fs.readFile(backup!, "utf-8")).toBe(original);
     });
   });
 
@@ -394,17 +395,17 @@ describe("aplicação de config", () => {
       await fs.writeFile(file, original);
 
       const changed = await applySettings(file, { permissions: { allow: ["B"] } }, false);
-      const filesAfterChange = await fs.readdir(dir);
-      const backup = filesAfterChange.find((name) => name.startsWith("settings.json.bak-"));
-      expect(changed).toContain(`backup: ${path.join(dir, backup!)}`);
+      const backup = changed.match(/backup: (.+)\)/)?.[1];
+      expect(backup).toBeTruthy();
       expect(JSON.parse(await fs.readFile(file, "utf-8"))).toEqual({
         permissions: { allow: ["A", "B"] },
       });
-      expect(await fs.readFile(path.join(dir, backup!), "utf-8")).toBe(original);
+      // backup vai para o dir central, não ao lado do arquivo (fora do repo do usuário)
+      expect(await fs.readFile(backup!, "utf-8")).toBe(original);
+      expect(await fs.readdir(dir)).toEqual(["settings.json"]);
 
       const unchanged = await applySettings(file, { permissions: { allow: ["B"] } }, false);
       expect(unchanged).toContain("sem mudanças");
-      expect(await fs.readdir(dir)).toEqual(filesAfterChange);
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
@@ -418,14 +419,14 @@ describe("aplicação de config", () => {
       await fs.writeFile(file, original);
 
       const changed = await applyInstruction(file, "config:base", "instrução", false);
-      const filesAfterChange = await fs.readdir(dir);
-      const backup = filesAfterChange.find((name) => name.startsWith("CLAUDE.md.bak-"));
-      expect(changed).toContain(`backup: ${path.join(dir, backup!)}`);
-      expect(await fs.readFile(path.join(dir, backup!), "utf-8")).toBe(original);
+      const backup = changed.match(/backup: (.+)\)/)?.[1];
+      expect(backup).toBeTruthy();
+      expect(await fs.readFile(backup!, "utf-8")).toBe(original);
+      // backup central: o dir do usuário só tem o CLAUDE.md, sem .bak ao lado
+      expect(await fs.readdir(dir)).toEqual(["CLAUDE.md"]);
 
       const unchanged = await applyInstruction(file, "config:base", "instrução", false);
       expect(unchanged).toContain("sem mudanças");
-      expect(await fs.readdir(dir)).toEqual(filesAfterChange);
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }

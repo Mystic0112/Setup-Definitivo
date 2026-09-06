@@ -115,9 +115,12 @@ describe("MCP do Cursor", () => {
       await addCursorMcp(mcpItem("x"), file, false);
       expect((await fs.stat(file)).mode & 0o777).toBe(0o600);
 
-      await addCursorMcp(mcpItem("x", "node"), file, false);
-      const backup = (await fs.readdir(dir)).find((name) => name.includes(".bak-"))!;
-      expect((await fs.stat(path.join(dir, backup))).mode & 0o777).toBe(0o600);
+      const msg = await addCursorMcp(mcpItem("x", "node"), file, false);
+      const backup = msg.match(/backup: (.+)\)/)?.[1];
+      expect(backup).toBeTruthy();
+      expect((await fs.stat(backup!)).mode & 0o777).toBe(0o600);
+      // backup no dir central, não dentro do projeto do usuário
+      expect(await fs.readdir(dir)).toEqual(["mcp.json"]);
     });
   });
 });

@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { createHash } from "node:crypto";
 
 export async function exists(p: string): Promise<boolean> {
   try {
@@ -10,17 +12,37 @@ export async function exists(p: string): Promise<boolean> {
   }
 }
 
-/** Backup de um arquivo antes de sobrescrever. Retorna o caminho do .bak ou null. */
+/** Home da CLI (~/.setup-definitivo), com override por env para isolar testes. */
+export function setupHome(): string {
+  return process.env.SETUP_DEFINITIVO_HOME ?? path.join(os.homedir(), ".setup-definitivo");
+}
+
+/** Diretório central de backups, fora de qualquer repositório do usuário. */
+export function backupsDir(): string {
+  return path.join(setupHome(), "backups");
+}
+
+/**
+ * Backup de um arquivo antes de sobrescrever. Retorna o caminho do .bak ou null.
+ *
+ * Os backups vão para um diretório CENTRAL (~/.setup-definitivo/backups), não ao
+ * lado do original: um backup de `mcp.json`/`config.toml` carrega credenciais, e
+ * ao lado do original (escopo projeto) ele nasceria dentro do repositório git do
+ * usuário — candidato a `git add .` e vazamento no histórico (nezuko, MEDIUM).
+ * O nome achata o caminho de origem + hash curto para evitar colisão.
+ */
 export async function backupFile(file: string): Promise<string | null> {
   if (!(await exists(file))) return null;
+  const dir = backupsDir();
+  await fs.mkdir(dir, { recursive: true, mode: 0o700 });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const base = `${file}.bak-${stamp}`;
+  const hash = createHash("sha256").update(path.resolve(file)).digest("hex").slice(0, 8);
+  const base = path.join(dir, `${path.basename(file)}.${hash}.bak-${stamp}`);
   let bak = base;
   let suffix = 1;
   while (await exists(bak)) bak = `${base}-${suffix++}`;
-  // Cria já com 0600 em vez de copyFile+chmod: config.toml pode ter API key em
-  // texto puro, e o copyFile deixava uma janela em 0644 (nezuko, MEDIUM).
-  // Buffer (sem encoding) preserva binário; flag "wx" evita corrida no nome.
+  // Cria já com 0600 em vez de copyFile+chmod: evita janela em 0644 num arquivo
+  // que pode ter API key. Buffer (sem encoding) preserva binário; "wx" evita corrida.
   const data = await fs.readFile(file);
   await fs.writeFile(bak, data, { mode: 0o600, flag: "wx" });
   return bak;
