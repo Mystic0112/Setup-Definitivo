@@ -2,22 +2,39 @@
 
 CLI interativa para configurar um ambiente de IA completo — **MCPs, skills, ferramentas e configuração** — em **qualquer harness** (Claude, Cursor, Codex, Gemini CLI, opencode, OmniRoute…), perguntando no terminal o que você quer adicionar.
 
-> Status: **Fase 0/1** — scaffold + wizard esqueleto. A aplicação real (adapters/installers) está no [roadmap](docs/PLAN.md).
+Duas formas de usar — escolha a que preferir.
 
-## Uso (dev)
+## 1. Deixe sua IA configurar
+
+Aponte seu agente (Claude Code, Codex, Cursor, Gemini CLI, opencode…) para o repositório:
+
+> *"Leia o SETUP.md deste repositório e configure meu ambiente."*
+
+O [`SETUP.md`](SETUP.md) instrui o agente a detectar o que existe na máquina, propor um plano,
+esperar sua confirmação e aplicar — com as mesmas proteções da CLI. Funciona inclusive em
+harness que ainda não tem adapter, porque quem executa é o próprio agente.
+
+## 2. Use a CLI
+
+Determinística, com `--dry-run`, backup automático e `remove` conservador:
+
+```bash
+npx github:Mystic0112/Setup-Definitivo init --dry-run   # mostra o plano, não escreve
+npx github:Mystic0112/Setup-Definitivo init             # wizard interativo
+npx github:Mystic0112/Setup-Definitivo doctor           # diagnóstico do ambiente
+npx github:Mystic0112/Setup-Definitivo remove <id>      # remove o que instalou
+```
+
+Desenvolvimento local:
 
 ```bash
 npm install
-npm run dev -- init            # wizard interativo
-npm run dev -- init --dry-run  # mostra o que faria, sem escrever
-npm run dev -- list            # lista o catálogo
+npm run dev -- init --dry-run
+npm run dev -- list
 ```
 
-Quando publicado no npm:
-
-```bash
-npx setup-definitivo init
-```
+> Status: adapters de Claude, Cursor e Codex funcionando; `remove` implementado.
+> Roadmap em [docs/PLAN.md](docs/PLAN.md).
 
 ## Como funciona
 

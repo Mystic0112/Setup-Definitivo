@@ -10,15 +10,17 @@
     "dist",
     "assets",
     "docs",
+    "SETUP.md",
     "rename-map.json"
   ],
   "scripts": {
     "dev": "node --import tsx src/cli.ts",
     "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
     "start": "node dist/cli.js",
     "test": "vitest run",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "pack:skills": "tsx scripts/pack-skills.ts"
+    "pack:squad": "tsx scripts/pack-squad.ts"
   },
   "keywords": [
     "cli",

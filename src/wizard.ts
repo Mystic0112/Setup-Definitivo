@@ -6,6 +6,8 @@ import { getAdapter } from "./adapters/index.js";
 import { handoffContent, type Role } from "./generators/roles.js";
 import { exists, writeFileEnsured } from "./core/fsx.js";
 import { installTool } from "./installers/tool.js";
+import { stateFile, upsertStateEntries, type Artifact, type StateEntry } from "./core/state.js";
+import type { ItemResult } from "./adapters/types.js";
 
 const HARNESS_LABELS: Record<Harness, string> = {
   claude: "Claude",
@@ -71,16 +73,21 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
   p.intro("Setup Definitivo");
 
   // 1) Quais harnesses você usa?
+  // Nada vem pré-marcado de propósito: a CLI escreve em config do usuário, então
+  // a seleção é opt-in explícito. A detecção só informa, via hint.
   const availableHarnesses = Object.keys(HARNESS_LABELS) as Harness[];
-  const initialValues = await detectedHarnesses(availableHarnesses);
+  const detected = new Set(await detectedHarnesses(availableHarnesses));
   const harnesses = await p.multiselect({
     message: "Quais harnesses você vai usar?",
     options: availableHarnesses.map((h) => ({
       value: h,
       label: HARNESS_LABELS[h],
-      hint: getAdapter(h) ? undefined : "adapter não implementado",
+      hint: !getAdapter(h)
+        ? "adapter não implementado"
+        : detected.has(h)
+          ? "detectado nesta máquina"
+          : undefined,
     })),
-    initialValues,
     required: true,
   });
   if (p.isCancel(harnesses)) return void p.cancel("Cancelado.");
@@ -94,7 +101,7 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
     const combine = await p.confirm({
       message:
         "Usar os harnesses em conjunto? (ex.: Gemini planeja, Codex coda, Claude revisa)",
-      initialValue: true,
+      initialValue: false,
     });
     if (p.isCancel(combine)) return void p.cancel("Cancelado.");
     pipeline = combine;
@@ -197,12 +204,50 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
 }
 
 /** Fase 1: despacha os itens escolhidos para o adapter de cada harness. */
-export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> {
+function stateEntry(
+  result: ItemResult,
+  plan: InitPlan,
+  harness: Harness,
+  kind: Item["kind"]
+): StateEntry | undefined {
+  if (result.status !== "ok" || !result.artifacts?.length) return undefined;
+  return {
+    itemId: result.itemId,
+    kind,
+    harness,
+    target: plan.target,
+    projectRoot: plan.target === "project" ? path.resolve(process.cwd()) : null,
+    artifacts: result.artifacts as [Artifact, ...Artifact[]],
+    installedAt: new Date().toISOString(),
+  };
+}
+
+export async function applyPlan(
+  plan: InitPlan,
+  dryRun: boolean,
+  manifestFile: string = stateFile()
+): Promise<void> {
   const selected = CATALOG.filter((it) => plan.items.includes(it.id));
+  const installedEntries: StateEntry[] = [];
   const tools = selected.filter((item) => item.kind === "tool");
   for (const item of tools) {
     try {
-      p.log.step(await installTool(item, dryRun));
+      const message = await installTool(item, dryRun);
+      p.log.step(message);
+      if (!dryRun) {
+        installedEntries.push({
+          itemId: item.id,
+          kind: item.kind,
+          harness: plan.harnesses[0],
+          target: "global",
+          projectRoot: null,
+          artifacts: [{
+            type: "tool",
+            command: `uv tool uninstall ${item.tool?.args.at(-1) ?? item.id.split(":")[1]}`,
+          }],
+          installedAt: new Date().toISOString(),
+        });
+      }
     } catch (err) {
       p.log.step(`ERRO ${item.id}: ${(err as Error).message}`);
       process.exitCode = 1;
@@ -225,16 +270,19 @@ export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> 
     );
     const s = p.spinner();
     s.start(`${HARNESS_LABELS[h]}: aplicando ${forHarness.length} itens`);
-    const logs = await adapter.apply(forHarness, {
+    const results = await adapter.apply(forHarness, {
       target: plan.target,
       dryRun,
       pipeline: pipe,
     });
     s.stop(`${HARNESS_LABELS[h]}:`);
-    for (const line of logs) p.log.step(line);
-    // ponytail: sniff de string; único produtor é base.ts. Trocar por status
-    // estruturado quando remove/doctor --fix precisarem (Fase 4).
-    if (logs.some((line) => line.startsWith("ERRO "))) process.exitCode = 1;
+    for (const result of results) {
+      p.log.step(result.message);
+      if (result.status === "error") process.exitCode = 1;
+      const catalogItem = selected.find((item) => item.id === result.itemId);
+      const entry = stateEntry(result, plan, h, catalogItem?.kind ?? "skill");
+      if (entry) installedEntries.push(entry);
+    }
   }
 
   if (pipe && plan.target === "project") {
@@ -246,4 +294,6 @@ export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> 
       p.log.step(`handoff gerado -> ${file}`);
     }
   }
+
+  if (!dryRun) await upsertStateEntries(installedEntries, manifestFile);
 }

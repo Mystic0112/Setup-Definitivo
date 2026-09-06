@@ -35,7 +35,9 @@ export const SourceSchema = z.discriminatedUnion("type", [
 /** Item do catálogo — descreve O QUE instalar (o adapter sabe COMO). */
 export const ItemSchema = z.object({
   id: z.string().regex(/^[a-z]+:[a-z0-9-]+$/, "formato esperado: kind:nome"),
-  kind: z.enum(["mcp", "skill", "tool", "config"]),
+  // `agent` e `command` são arquivos .md únicos (definição de subagente e slash
+  // command); `skill` é um diretório com SKILL.md. Destinos diferentes no harness.
+  kind: z.enum(["mcp", "skill", "agent", "command", "tool", "config"]),
   name: z.string(),
   description: z.string(),
   targets: z.array(TargetSchema).nonempty(),

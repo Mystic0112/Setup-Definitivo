@@ -26,6 +26,16 @@ export function skillsDir(harness: Harness, target: Target, cwd?: string): strin
   return path.join(harnessBase(harness, target, cwd), "skills");
 }
 
+/** Onde as definições de subagente vivem (quando o harness suporta). */
+export function agentsDir(harness: Harness, target: Target, cwd?: string): string {
+  return path.join(harnessBase(harness, target, cwd), "agents");
+}
+
+/** Onde os slash commands vivem (quando o harness suporta). */
+export function commandsDir(harness: Harness, target: Target, cwd?: string): string {
+  return path.join(harnessBase(harness, target, cwd), "commands");
+}
+
 /** Arquivo settings.json de cada harness (onde o conceito existe). */
 export function settingsFile(harness: Harness, target: Target, cwd?: string): string {
   const name = target === "project" ? "settings.local.json" : "settings.json";

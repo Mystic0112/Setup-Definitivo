@@ -54,6 +54,21 @@ export function upsertBlock(existing: string, id: string, content: string): stri
   return `${existing}${sep}${block}\n`;
 }
 
+/** Remove um bloco gerenciado sem tocar no texto externo. Função pura. */
+export function removeBlock(existing: string, id: string): string {
+  assertValidMarkers(existing, id);
+  const re = new RegExp(
+    `${escapeRegExp(START(id))}[\\s\\S]*?${escapeRegExp(END(id))}`
+  );
+  const match = re.exec(existing);
+  if (!match) return existing;
+  let start = match.index;
+  let end = match.index + match[0].length;
+  if (existing.slice(start - 2, start) === "\n\n") start -= 2;
+  if (existing[end] === "\n") end += 1;
+  return existing.slice(0, start) + existing.slice(end);
+}
+
 /** Aplica patch de settings.json com backup. */
 export async function applySettings(
   file: string,

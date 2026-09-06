@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { runDoctor } from "./commands/doctor.js";
+import { runRemove } from "./commands/remove.js";
 import { CATALOG } from "./registry/items.js";
 import { runInit } from "./wizard.js";
 
@@ -44,10 +45,24 @@ program
     await runDoctor();
   });
 
+program
+  .command("remove")
+  .description("Remove itens registrados no manifesto, com verificações conservadoras.")
+  .argument("[itemId...]", "IDs dos itens a remover")
+  .option("--all", "remove todas as entradas do manifesto", false)
+  .option("--dry-run", "mostra exatamente o que removeria sem escrever", false)
+  .option("--yes", "não pede confirmação", false)
+  .action(async (itemIds: string[], opts) => {
+    await runRemove(itemIds, {
+      all: opts.all,
+      dryRun: opts.dryRun,
+      yes: opts.yes,
+    });
+  });
+
 // Stubs das próximas fases — declarados para o --help já refletir o roadmap.
 for (const [cmd, desc] of [
   ["add", "Adiciona um item específico sem o wizard."],
-  ["remove", "Remove um item e reverte a config."],
   ["update", "Atualiza itens instalados para o catálogo atual."],
 ] as const) {
   program

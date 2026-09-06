@@ -276,6 +276,7 @@ describe("skills degradadas", () => {
 describe("orquestração e adapters", () => {
   it("gera HANDOFF uma vez e preserva o registro em nova execução", async () => {
     await withTempDir(async (dir) => {
+      const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "setup-definitivo-state-"));
       const previousCwd = process.cwd();
       process.chdir(dir);
       vi.spyOn(prompts.log, "step").mockImplementation(() => {});
@@ -284,7 +285,7 @@ describe("orquestração e adapters", () => {
           pipeline: true,
           roles: { claude: ["plan"], cursor: ["code"], codex: ["review"] },
         });
-        await applyPlan(pipeline, false);
+        await applyPlan(pipeline, false, path.join(stateDir, "state.json"));
         const files = await fs.readdir(dir, { recursive: true });
         expect(files.filter((name) => path.basename(name) === "HANDOFF.md")).toHaveLength(1);
         expect(files.filter((name) => name.includes(".bak-"))).toHaveLength(0);
@@ -292,7 +293,7 @@ describe("orquestração e adapters", () => {
         const handoff = path.join(dir, "HANDOFF.md");
         await fs.appendFile(handoff, "\n### Registro preservado\n");
         const withHistory = await fs.readFile(handoff, "utf-8");
-        await applyPlan(pipeline, false);
+        await applyPlan(pipeline, false, path.join(stateDir, "state.json"));
         expect(await fs.readFile(handoff, "utf-8")).toBe(withHistory);
         expect(
           (await fs.readdir(dir, { recursive: true })).filter((name) =>
@@ -301,6 +302,7 @@ describe("orquestração e adapters", () => {
         ).toHaveLength(0);
       } finally {
         process.chdir(previousCwd);
+        await fs.rm(stateDir, { recursive: true, force: true });
       }
     });
   });
@@ -335,8 +337,8 @@ describe("orquestração e adapters", () => {
     const item = localSkill("assets/skills/backend");
     const claude = await claudeAdapter.apply([item], { target: "project", dryRun: true });
     const cursor = await cursorAdapter.apply([item], { target: "project", dryRun: true });
-    expect(claude[0]).toContain("[dry-run] copiar");
-    expect(cursor[0]).toContain("skill convertida em instrução");
+    expect(claude[0].message).toContain("[dry-run] copiar");
+    expect(cursor[0].message).toContain("skill convertida em instrução");
   });
 
   it("pula settings sem suporte", async () => {
@@ -349,7 +351,7 @@ describe("orquestração e adapters", () => {
       needsSecret: false,
       config: { settings: { value: true } },
     };
-    expect((await cursorAdapter.apply([item], { target: "project", dryRun: true }))[0]).toContain(
+    expect((await cursorAdapter.apply([item], { target: "project", dryRun: true }))[0].message).toContain(
       "não possui settings.json equivalente"
     );
   });
@@ -394,8 +396,8 @@ describe("orquestração e adapters", () => {
           target: "project",
           dryRun: true,
         });
-        expect(skillLog[0]).toContain(path.join(dir, ".cursorrules"));
-        expect(errorLog[0]).toContain(
+        expect(skillLog[0].message).toContain(path.join(dir, ".cursorrules"));
+        expect(errorLog[0].message).toContain(
           "ERRO mcp:sem-spec: mcp:sem-spec: sem spec de mcp (cmd/args)."
         );
       } finally {
@@ -405,7 +407,11 @@ describe("orquestração e adapters", () => {
   });
 
   it("marca falha de adapter no exit code", async () => {
-    vi.spyOn(cursorAdapter, "apply").mockResolvedValue(["ERRO fake: falhou"]);
+    vi.spyOn(cursorAdapter, "apply").mockResolvedValue([{
+      itemId: "fake",
+      status: "error",
+      message: "ERRO fake: falhou",
+    }]);
     await applyPlan(plan({ harnesses: ["cursor"] }), true);
     expect(process.exitCode).toBe(1);
   });
@@ -415,7 +421,7 @@ describe("orquestração e adapters", () => {
       target: "project",
       dryRun: true,
     });
-    expect(log[0]).toContain("escopo global — Codex não suporta MCP por projeto");
+    expect(log[0].message).toContain("escopo global — Codex não suporta MCP por projeto");
   });
 });
 
