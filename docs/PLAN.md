@@ -229,10 +229,7 @@ Esses **não** são copiados pra dentro do repo — o catálogo aponta pro repo 
 
 | id | kind | source (git) | Observação |
 |---|---|---|---|
-| `skill:impeccable` | skill (git) | repo do impeccable | design/UX frontend |
-| `skill:design-taste` | skill (git) | repo taste-skills | design-taste-frontend |
-| `skill:motion` | skill (git) | repo motion | animação/motion |
-| `mcp:21st` | mcp | `@21st-dev/magic` | Magic MCP — geração de componentes UI. Guia + API key (ver §8.2) |
+| `tool:21st` | tool | instalador oficial (MCP HTTP, não stdio) |
 
 Spec de item com fonte git:
 
@@ -332,8 +329,15 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
 
 **Bloqueiam divulgar o repositório:**
 
-- **URLs `OWNER/` no catálogo.** `skill:impeccable`, `skill:design-taste` e `skill:motion`
-  apontam para placeholders. Hoje são pulados com aviso; precisam do repo/ref reais.
+- ~~URLs `OWNER/` no catálogo.~~ ✅ **resolvido.** Investigado o que cada um era de fato:
+  - **impeccable**: existe no npm (v4.0.3, Apache-2.0, `github.com/pbakaus/impeccable`) e tem
+    instalador próprio → virou `tool:impeccable`.
+  - **design-taste-frontend**: existe só como diretório local, **sem licença declarada** e sem
+    origem git. Redistribuir trabalho de terceiro sem licença não é decisão a tomar em silêncio
+    — item removido até que a origem e a licença sejam conhecidas.
+  - **motion**: não existe na máquina nem foi possível identificar a fonte — item removido.
+  Nenhuma URL foi inventada: apontar para um repo de nome parecido é o mesmo risco de supply
+  chain que a revisão de segurança levantou.
 - ~~Nomes de pacote dos MCPs não conferidos.~~ ✅ **verificados no registro npm (2026-09-06).**
   Achados: `@clickup/mcp-server` **não existia** (404) — item removido do catálogo por ser
   configuração pessoal, como o oráculo. `@21st-dev/magic` era proxy de compatibilidade

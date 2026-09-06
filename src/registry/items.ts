@@ -34,10 +34,10 @@ export const CATALOG = CatalogSchema.parse([
   { id: "command:pm", kind: "command", name: "/pm — PM (Pam)", description: "Slash command que invoca o subagente pm.", targets: ["global", "project"], requires: ["agent:pm"], source: { type: "local", path: "assets/commands/pm.md" }, needsSecret: false },
   { id: "command:lead", kind: "command", name: "/lead — Lead (Leo)", description: "Slash command que invoca o subagente lead.", targets: ["global", "project"], requires: ["agent:lead"], source: { type: "local", path: "assets/commands/lead.md" }, needsSecret: false },
 
-  // ── Design & UI (via git URL — preenchê-las com o repo/ref reais) ────────
-  { id: "skill:impeccable", kind: "skill", name: "Impeccable", description: "Design/UX frontend anti-slop.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/impeccable", ref: "main" }, needsSecret: false },
-  { id: "skill:design-taste", kind: "skill", name: "Design Taste", description: "taste-skills / design-taste-frontend.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/taste-skills", ref: "main" }, needsSecret: false },
-  { id: "skill:motion", kind: "skill", name: "Motion", description: "Biblioteca de animação/motion.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/motion", ref: "main" }, needsSecret: false },
+  // ── Design & UI ─────────────────────────────────────────────────────────
+  // impeccable: verificado no npm (v4.0.3, Apache-2.0, github.com/pbakaus/impeccable).
+  // O instalador dele é o próprio pacote, então entra como tool.
+  { id: "tool:impeccable", kind: "tool", name: "Impeccable (design/UX)", description: "Skills e comandos de design para agentes; detecção de anti-padrões de UI.", targets: ["global"], needsSecret: false, tool: { cmd: "npx", args: ["-y", "impeccable@latest", "init"] } },
 
   // ── MCPs ─────────────────────────────────────────────────────────────────
   // Nomes verificados no registro npm em 2026-09-06. @21st-dev/magic era um proxy
