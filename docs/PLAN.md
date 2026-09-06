@@ -346,7 +346,8 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
 
 **Dívida técnica registrada (não bloqueia):**
 
-- Escrita não atômica (`writeFile` trunca; falta tmp + `rename`).
+- ~~Escrita não atômica.~~ ✅ `writeFileEnsured` escreve em temporário no mesmo diretório e
+  renomeia; falha no meio preserva o arquivo antigo e não deixa lixo.
 - `.bak-*` acumulam sem poda; em alvo projeto caem na raiz do repo do usuário, que
   provavelmente não os ignora no `.gitignore`.
 - Preview do wizard é global, não por harness: mostra permissões do Claude mesmo com só

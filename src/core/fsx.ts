@@ -29,8 +29,25 @@ export async function copyDir(src: string, dest: string): Promise<void> {
   await fs.cp(src, dest, { recursive: true, dereference: true });
 }
 
-/** Escreve um arquivo criando os diretórios necessários. */
+/** Sufixo incremental para o temporário, evitando colisão entre escritas seguidas. */
+let counter = 0;
+
+/**
+ * Escreve um arquivo de forma atômica, criando os diretórios necessários.
+ *
+ * `fs.writeFile` trunca antes de escrever: um Ctrl-C ou ENOSPC no meio deixa a
+ * config do usuário pela metade. Escrever num temporário no MESMO diretório e
+ * renomear é atômico no mesmo filesystem — o arquivo ou é o antigo, ou é o novo.
+ */
 export async function writeFileEnsured(file: string, content: string): Promise<void> {
-  await fs.mkdir(path.dirname(file), { recursive: true });
-  await fs.writeFile(file, content, { encoding: "utf-8", mode: 0o600 });
+  const dir = path.dirname(file);
+  await fs.mkdir(dir, { recursive: true });
+  const tmp = path.join(dir, `.${path.basename(file)}.tmp-${process.pid}-${counter++}`);
+  try {
+    await fs.writeFile(tmp, content, { encoding: "utf-8", mode: 0o600 });
+    await fs.rename(tmp, file);
+  } catch (error) {
+    await fs.rm(tmp, { force: true });
+    throw error;
+  }
 }
