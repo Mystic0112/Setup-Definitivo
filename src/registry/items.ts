@@ -39,6 +39,39 @@ export const CATALOG: Item[] = [
   { id: "skill:ponytail", kind: "skill", name: "ponytail", description: "Solução mais simples que funciona (anti over-engineering).", targets: ["global", "project"], source: { type: "local", path: "assets/skills/ponytail" }, needsSecret: false },
 
   // ── Config ────────────────────────────────────────────────────────────────
-  { id: "config:base-instructions", kind: "config", name: "Instruções base", description: "CLAUDE.md / AGENTS.md / .cursorrules base (por harness).", targets: ["global", "project"], needsSecret: false },
-  { id: "config:hooks-basicos", kind: "config", name: "Hooks básicos", description: "Hooks e permissões padrão em settings.json.", targets: ["global", "project"], needsSecret: false },
+  {
+    id: "config:base-instructions", kind: "config", name: "Instruções base",
+    description: "Bloco base no arquivo de instrução (CLAUDE.md / AGENTS.md / .cursorrules).",
+    targets: ["global", "project"], needsSecret: false,
+    config: {
+      blockId: "base",
+      instruction: [
+        "## Setup Definitivo — base",
+        "",
+        "- Faça o que foi pedido; nada além.",
+        "- Prefira editar arquivos existentes a criar novos.",
+        "- Sempre leia um arquivo antes de editá-lo.",
+        "- Nunca commite segredos, credenciais ou .env.",
+        "- Rode testes/build após mudanças de código.",
+      ].join("\n"),
+    },
+  },
+  {
+    id: "config:hooks-basicos", kind: "config", name: "Permissões básicas",
+    description: "Permissões explícitas para comandos básicos em settings.json.",
+    targets: ["global", "project"], needsSecret: false,
+    config: {
+      settings: {
+        permissions: {
+          allow: [
+            "Bash(git status)",
+            "Bash(git diff)",
+            "Bash(git diff --stat)",
+            "Bash(git log --oneline -n 20)",
+            "Bash(ls:*)",
+          ],
+        },
+      },
+    },
+  },
 ];

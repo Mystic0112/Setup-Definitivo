@@ -1,6 +1,6 @@
 import * as p from "@clack/prompts";
 import { CATALOG } from "./registry/items.js";
-import type { Harness } from "./registry/schema.js";
+import type { Harness, Item } from "./registry/schema.js";
 import { getAdapter } from "./adapters/index.js";
 import type { Role } from "./generators/roles.js";
 
@@ -32,6 +32,18 @@ export interface InitPlan {
   roles: Record<string, Role[]>; // harness -> papéis
   target: "global" | "project";
   items: string[];
+}
+
+function permissionPreviewLines(item: Item): string[] {
+  const permissions = item.config?.settings?.permissions;
+  if (typeof permissions !== "object" || permissions === null || Array.isArray(permissions)) {
+    return [];
+  }
+  const allow = (permissions as Record<string, unknown>).allow;
+  if (!Array.isArray(allow)) return [];
+  return allow
+    .filter((permission): permission is string => typeof permission === "string")
+    .map((permission) => `      permissão: ${permission}`);
 }
 
 /**
@@ -127,7 +139,10 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
     `Alvo: ${target}`,
     "",
     "Itens a instalar:",
-    ...selected.map((it) => `  • ${it.id} — ${it.name}`),
+    ...selected.flatMap((it) => [
+      `  • ${it.id} — ${it.name}`,
+      ...permissionPreviewLines(it),
+    ]),
     needSecret.length
       ? `\nPrecisam de credencial (guia será exibido): ${needSecret
           .map((i) => i.id)

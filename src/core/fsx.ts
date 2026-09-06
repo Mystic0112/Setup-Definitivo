@@ -22,7 +22,7 @@ export async function backupFile(file: string): Promise<string | null> {
 /** Copia um diretório recursivamente (Node 20 fs.cp). */
 export async function copyDir(src: string, dest: string): Promise<void> {
   await fs.mkdir(path.dirname(dest), { recursive: true });
-  await fs.cp(src, dest, { recursive: true });
+  await fs.cp(src, dest, { recursive: true, dereference: true });
 }
 
 /** Escreve um arquivo criando os diretórios necessários. */

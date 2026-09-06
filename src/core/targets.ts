@@ -26,6 +26,12 @@ export function skillsDir(harness: Harness, target: Target, cwd?: string): strin
   return path.join(harnessBase(harness, target, cwd), "skills");
 }
 
+/** Arquivo settings.json de cada harness (onde o conceito existe). */
+export function settingsFile(harness: Harness, target: Target, cwd?: string): string {
+  const name = target === "project" ? "settings.local.json" : "settings.json";
+  return path.join(harnessBase(harness, target, cwd), name);
+}
+
 /** Arquivo de instruções principal de cada harness. */
 export function instructionFile(
   harness: Harness,

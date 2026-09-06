@@ -1,11 +1,12 @@
 import path from "node:path";
 import type { Adapter, ApplyContext } from "./types.js";
 import type { Item, Target } from "../registry/schema.js";
-import { harnessBase, skillsDir } from "../core/targets.js";
+import { harnessBase, skillsDir, settingsFile, instructionFile } from "../core/targets.js";
 import { exists, writeFileEnsured, backupFile } from "../core/fsx.js";
 import { installSkill } from "../installers/skill.js";
 import { installTool } from "../installers/tool.js";
 import { addClaudeMcp } from "../installers/mcp.js";
+import { applySettings, applyInstruction } from "../installers/config.js";
 import { roleSkillContent, handoffContent, type Role } from "../generators/roles.js";
 
 export const claudeAdapter: Adapter = {
@@ -32,9 +33,28 @@ export const claudeAdapter: Adapter = {
           case "tool":
             log.push(await installTool(item, ctx.dryRun));
             break;
-          case "config":
-            log.push(`config manual (fase 2): ${item.id}`);
+          case "config": {
+            if (item.config?.settings) {
+              log.push(
+                await applySettings(
+                  settingsFile("claude", ctx.target),
+                  item.config.settings,
+                  ctx.dryRun
+                )
+              );
+            }
+            if (item.config?.instruction) {
+              log.push(
+                await applyInstruction(
+                  instructionFile("claude", ctx.target),
+                  item.config.blockId ?? item.id,
+                  item.config.instruction,
+                  ctx.dryRun
+                )
+              );
+            }
             break;
+          }
         }
       } catch (err) {
         log.push(`ERRO ${item.id}: ${(err as Error).message}`);

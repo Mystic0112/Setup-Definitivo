@@ -56,6 +56,14 @@ export const ItemSchema = z.object({
   tool: z
     .object({ cmd: z.string(), args: z.array(z.string()).default([]) })
     .optional(),
+  /** Payload de config: patch de settings.json e/ou bloco de instrução. */
+  config: z
+    .object({
+      settings: z.record(z.unknown()).optional(),
+      instruction: z.string().optional(),
+      blockId: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type Item = z.infer<typeof ItemSchema>;
