@@ -351,8 +351,9 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
   renomeia; falha no meio preserva o arquivo antigo e não deixa lixo.
 - `.bak-*` acumulam sem poda; em alvo projeto caem na raiz do repo do usuário, que
   provavelmente não os ignora no `.gitignore`.
-- Preview do wizard é global, não por harness: mostra permissões do Claude mesmo com só
-  Cursor selecionado.
+- ~~Preview do wizard mostra permissões do Claude mesmo com só Cursor selecionado.~~ ✅
+  Resolvido pelo filtro por categoria: itens com `harnesses` restrito são ocultados quando
+  nenhum harness escolhido bate (`config:hooks-basicos` some se só Cursor for selecionado).
 - Skills de fonte git ainda não convertem para instrução em harness degradado.
 - `item.targets` é campo declarado sem nenhum leitor em `src/` — parece garantia e não é.
 - Clone git usa branch mutável (`ref: "main"`), sem pin de SHA, e o conteúdo vai para um
