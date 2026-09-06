@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { runAdd } from "./commands/add.js";
 import { runDoctor } from "./commands/doctor.js";
 import { runRemove } from "./commands/remove.js";
 import { runUpdate } from "./commands/update.js";
@@ -69,17 +70,19 @@ program
     await runUpdate({ dryRun: opts.dryRun });
   });
 
-// Stubs das próximas fases — declarados para o --help já refletir o roadmap.
-for (const [cmd, desc] of [
-  ["add", "Adiciona um item específico sem o wizard."],
-] as const) {
-  program
-    .command(cmd)
-    .description(`${desc} (em construção)`)
-    .action(() => {
-      console.log(`\n"${cmd}" ainda não implementado — ver roadmap em docs/PLAN.md\n`);
-      process.exitCode = 1;
+program
+  .command("add")
+  .description("Adiciona itens específicos sem o wizard (resolve dependências).")
+  .argument("<itemId...>", "IDs do catálogo (ex.: agent:backend mcp:notebooklm)")
+  .option("--harness <name...>", "harness alvo; padrão: os detectados", [])
+  .option("--project", "aplica no projeto atual em vez de global", false)
+  .option("--dry-run", "mostra o que faria sem escrever", false)
+  .action(async (itemIds: string[], opts) => {
+    await runAdd(itemIds, {
+      harness: opts.harness,
+      project: opts.project,
+      dryRun: opts.dryRun,
     });
-}
+  });
 
 program.parseAsync();
