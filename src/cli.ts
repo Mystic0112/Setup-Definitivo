@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { runDoctor } from "./commands/doctor.js";
 import { runRemove } from "./commands/remove.js";
+import { runUpdate } from "./commands/update.js";
 import { CATALOG } from "./registry/items.js";
 import { runInit } from "./wizard.js";
 
@@ -60,10 +61,17 @@ program
     });
   });
 
+program
+  .command("update")
+  .description("Reaplica os itens do manifesto usando o catálogo atual.")
+  .option("--dry-run", "mostra o que reaplicaria sem escrever", false)
+  .action(async (opts) => {
+    await runUpdate({ dryRun: opts.dryRun });
+  });
+
 // Stubs das próximas fases — declarados para o --help já refletir o roadmap.
 for (const [cmd, desc] of [
   ["add", "Adiciona um item específico sem o wizard."],
-  ["update", "Atualiza itens instalados para o catálogo atual."],
 ] as const) {
   program
     .command(cmd)
