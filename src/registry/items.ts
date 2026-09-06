@@ -1,0 +1,43 @@
+import type { Item } from "./schema.js";
+
+/**
+ * Catálogo declarativo. Adicionar suporte a algo novo = adicionar uma entrada aqui.
+ * As skills da squad usam id por capacidade (rename aplicado no empacotamento);
+ * libs externas de design vêm por git URL (não são copiadas pra dentro do repo).
+ */
+export const CATALOG: Item[] = [
+  // ── Squad (nomes por capacidade; label híbrido com persona) ──────────────
+  { id: "skill:backend", kind: "skill", name: "Backend (Bruno)", description: "Backend PHP/Laravel: APIs, refactor, debugging.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/backend" }, needsSecret: false },
+  { id: "skill:frontend", kind: "skill", name: "Frontend (Fiona)", description: "Frontend React/Vue/CSS, UI/UX e acessibilidade.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/frontend" }, needsSecret: false },
+  { id: "skill:database", kind: "skill", name: "Database (Diana)", description: "Modelagem, queries, tuning, migrations.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/database" }, needsSecret: false },
+  { id: "skill:qa", kind: "skill", name: "QA (Quinn)", description: "Testes, code review, SOLID, Clean Code.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/qa" }, needsSecret: false },
+  { id: "skill:security", kind: "skill", name: "Security (Sam)", description: "OWASP, análise de vulnerabilidades, hardening.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/security" }, needsSecret: false },
+  { id: "skill:devops", kind: "skill", name: "DevOps (Otto)", description: "Docker, CI/CD, deploy, infra, monitoramento.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/devops" }, needsSecret: false },
+  { id: "skill:mobile", kind: "skill", name: "Mobile (Mia)", description: "React Native e Flutter.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/mobile" }, needsSecret: false },
+  { id: "skill:scripting", kind: "skill", name: "Scripting (Nina)", description: "Python e Node: scripts, APIs, CLIs, automações.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/scripting" }, needsSecret: false },
+  { id: "skill:architect", kind: "skill", name: "Architect (Artur)", description: "Arquitetura de software, DDD, ADRs.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/architect" }, needsSecret: false },
+  { id: "skill:data", kind: "skill", name: "Data/BI (Dado)", description: "Data, BI, ETL, dashboards.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/data" }, needsSecret: false },
+  { id: "skill:pm", kind: "skill", name: "PM (Pam)", description: "Planejamento, estimativas, documentação técnica.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/pm" }, needsSecret: false },
+  { id: "skill:lead", kind: "skill", name: "Lead (Leo)", description: "Coordenação multi-domínio; orquestra os demais.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/lead" }, needsSecret: false },
+
+  // ── Design & UI (via git URL — preenchê-las com o repo/ref reais) ────────
+  { id: "skill:impeccable", kind: "skill", name: "Impeccable", description: "Design/UX frontend anti-slop.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/impeccable", ref: "main" }, needsSecret: false },
+  { id: "skill:design-taste", kind: "skill", name: "Design Taste", description: "taste-skills / design-taste-frontend.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/taste-skills", ref: "main" }, needsSecret: false },
+  { id: "skill:motion", kind: "skill", name: "Motion", description: "Biblioteca de animação/motion.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/motion", ref: "main" }, needsSecret: false },
+
+  // ── MCPs ─────────────────────────────────────────────────────────────────
+  { id: "mcp:21st", kind: "mcp", name: "21st.dev Magic", description: "Geração de componentes UI via Magic MCP.", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/21st.md" },
+  { id: "mcp:clickup", kind: "mcp", name: "ClickUp", description: "Tarefas, docs e workspace do ClickUp.", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/clickup.md" },
+  { id: "mcp:notebooklm", kind: "mcp", name: "NotebookLM", description: "Notebooks, fontes e geração (áudio/vídeo/slides).", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/notebooklm.md" },
+  { id: "mcp:desktop-commander", kind: "mcp", name: "Desktop Commander", description: "Controle de terminal e arquivos.", targets: ["global", "project"], needsSecret: false },
+
+  // ── Ferramentas + skills de produtividade ────────────────────────────────
+  { id: "tool:graphify", kind: "tool", name: "graphify (motor)", description: "uv tool install graphifyy — motor de grafo de conhecimento.", targets: ["global"], needsSecret: false },
+  { id: "skill:graphify", kind: "skill", name: "graphify (skill)", description: "Orquestra o graphify: código/docs → grafo consultável.", targets: ["global", "project"], requires: ["tool:graphify"], source: { type: "local", path: "assets/skills/graphify" }, needsSecret: false },
+  { id: "skill:caveman", kind: "skill", name: "caveman", description: "Estilo de resposta terso.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/caveman" }, needsSecret: false },
+  { id: "skill:ponytail", kind: "skill", name: "ponytail", description: "Solução mais simples que funciona (anti over-engineering).", targets: ["global", "project"], source: { type: "local", path: "assets/skills/ponytail" }, needsSecret: false },
+
+  // ── Config ────────────────────────────────────────────────────────────────
+  { id: "config:base-instructions", kind: "config", name: "Instruções base", description: "CLAUDE.md / AGENTS.md / .cursorrules base (por harness).", targets: ["global", "project"], needsSecret: false },
+  { id: "config:hooks-basicos", kind: "config", name: "Hooks básicos", description: "Hooks e permissões padrão em settings.json.", targets: ["global", "project"], needsSecret: false },
+];

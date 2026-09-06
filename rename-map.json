@@ -1,0 +1,17 @@
+{
+  "_comment": "De-para aplicado SÓ no empacotamento (fonte local -> distribuído no repo). O ambiente local do autor nunca é alterado.",
+  "skills": {
+    "escanor":   { "id": "backend",   "label": "Backend (Bruno)" },
+    "bulma":     { "id": "frontend",  "label": "Frontend (Fiona)" },
+    "ippo":      { "id": "database",  "label": "Database (Diana)" },
+    "levi":      { "id": "qa",        "label": "QA (Quinn)" },
+    "nezuko":    { "id": "security",  "label": "Security (Sam)" },
+    "saitama":   { "id": "devops",    "label": "DevOps (Otto)" },
+    "gon":       { "id": "mobile",    "label": "Mobile (Mia)" },
+    "uraraka":   { "id": "scripting", "label": "Scripting (Nina)" },
+    "kurama":    { "id": "architect", "label": "Architect (Artur)" },
+    "ryuk":      { "id": "data",      "label": "Data/BI (Dado)" },
+    "shikamaru": { "id": "pm",        "label": "PM (Pam)" },
+    "light":     { "id": "lead",      "label": "Lead (Leo)" }
+  }
+}

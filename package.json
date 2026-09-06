@@ -1,0 +1,51 @@
+{
+  "name": "setup-definitivo",
+  "version": "0.0.1",
+  "description": "CLI interativa para configurar um ambiente de IA completo (MCPs, skills, tools, config) em qualquer harness — Claude, Cursor, Codex, Gemini e outros.",
+  "type": "module",
+  "bin": {
+    "setup-definitivo": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "docs",
+    "rename-map.json"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "claude",
+    "cursor",
+    "codex",
+    "gemini",
+    "mcp",
+    "skills",
+    "setup",
+    "ai"
+  ],
+  "author": "Mystic0112",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "commander": "^12.1.0",
+    "execa": "^9.4.0",
+    "deepmerge": "^4.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
