@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { ADAPTERS } from "../src/adapters/index.js";
 import { copyDir } from "../src/core/fsx.js";
 import { skillsDir, instructionFile, settingsFile } from "../src/core/targets.js";
 import {
@@ -10,10 +11,41 @@ import {
   mergeSettings,
   upsertBlock,
 } from "../src/installers/config.js";
-import { claudeMcpArgs, mcpName } from "../src/installers/mcp.js";
+import {
+  addCodexMcp,
+  addCursorMcp,
+  claudeMcpArgs,
+  codexMcpBlock,
+  mcpName,
+} from "../src/installers/mcp.js";
+import { installSkillAsInstruction } from "../src/installers/skill.js";
 import { roleSkillContent, handoffContent, type Pipeline } from "../src/generators/roles.js";
 import { CATALOG } from "../src/registry/items.js";
-import { CatalogSchema } from "../src/registry/schema.js";
+import { CatalogSchema, type Item } from "../src/registry/schema.js";
+
+async function withTempDir(
+  prefix: string,
+  run: (dir: string) => Promise<void>
+): Promise<void> {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+  try {
+    await run(dir);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+}
+
+function mcpItem(name: string, command = "npx", args = ["-y", "pkg@latest"]): Item {
+  return {
+    id: `mcp:${name}`,
+    kind: "mcp",
+    name,
+    description: `MCP ${name}`,
+    targets: ["global", "project"],
+    needsSecret: false,
+    mcp: { cmd: command, args },
+  };
+}
 
 describe("targets", () => {
   it("skills globais do Claude ficam em ~/.claude/skills", () => {
@@ -22,9 +54,15 @@ describe("targets", () => {
   it("skills de projeto ficam em ./.claude/skills", () => {
     expect(skillsDir("claude", "project", "/tmp/proj")).toBe("/tmp/proj/.claude/skills");
   });
-  it("arquivo de instrução varia por harness", () => {
-    expect(instructionFile("codex", "project", "/tmp/proj")).toBe("/tmp/proj/AGENTS.md");
-    expect(instructionFile("cursor", "project", "/tmp/proj")).toBe("/tmp/proj/.cursorrules");
+  it.each([
+    ["claude", "global", path.join(os.homedir(), ".claude", "CLAUDE.md")],
+    ["claude", "project", "/tmp/proj/.claude/CLAUDE.md"],
+    ["cursor", "global", path.join(os.homedir(), ".cursor", "rules", "setup-definitivo.md")],
+    ["cursor", "project", "/tmp/proj/.cursorrules"],
+    ["codex", "global", path.join(os.homedir(), ".codex", "AGENTS.md")],
+    ["codex", "project", "/tmp/proj/AGENTS.md"],
+  ] as const)("instrução de %s no alvo %s", (harness, target, expected) => {
+    expect(instructionFile(harness, target, "/tmp/proj")).toBe(expected);
   });
   it("settings de projeto usam arquivo local", () => {
     expect(settingsFile("claude", "project", "/tmp/proj")).toBe(
@@ -66,6 +104,125 @@ describe("mcp", () => {
     expect(claudeMcpArgs(item)).toEqual([
       "mcp", "add", "21st", "--", "npx", "-y", "@21st-dev/magic@latest",
     ]);
+  });
+
+  it("serializa bloco TOML do Codex com escape seguro", () => {
+    const item = mcpItem("quoted", String.raw`npx "tool" \path`, [
+      String.raw`a"b`,
+      String.raw`c\d`,
+    ]);
+    const block = codexMcpBlock(item);
+
+    expect(block).toContain("[mcp_servers.quoted]\n");
+    expect(block).toContain(String.raw`command = "npx \"tool\" \\path"`);
+    expect(block).toContain(String.raw`args = ["a\"b", "c\\d"]`);
+  });
+
+  it("não modifica config TOML quando o servidor já existe", async () => {
+    await withTempDir("setup-definitivo-codex-", async (dir) => {
+      const file = path.join(dir, "config.toml");
+      const original =
+        '# configuração manual\n[mcp_servers.x]\ncommand = "old"\n' +
+        'http_headers = { Authorization = "segredo" }\n';
+      await fs.writeFile(file, original);
+
+      const result = await addCodexMcp(mcpItem("x"), file, false);
+
+      expect(await fs.readFile(file, "utf-8")).toBe(original);
+      expect(await fs.readdir(dir)).toEqual(["config.toml"]);
+      expect(result).toContain("já existe: mcp:x, pulado");
+      expect(result).not.toContain("segredo");
+    });
+  });
+
+  it("anexa MCP do Codex preservando integralmente o conteúdo anterior", async () => {
+    await withTempDir("setup-definitivo-codex-", async (dir) => {
+      const file = path.join(dir, "config.toml");
+      const original = '# comentário\nmodel = "gpt"\n';
+      await fs.writeFile(file, original);
+
+      const result = await addCodexMcp(mcpItem("novo"), file, false);
+      const updated = await fs.readFile(file, "utf-8");
+      const backup = (await fs.readdir(dir)).find((name) => name.startsWith("config.toml.bak-"));
+
+      expect(updated.startsWith(original)).toBe(true);
+      expect(updated.slice(original.length)).toContain(codexMcpBlock(mcpItem("novo")));
+      expect(await fs.readFile(path.join(dir, backup!), "utf-8")).toBe(original);
+      expect(result).toContain(`backup: ${path.join(dir, backup!)}`);
+    });
+  });
+
+  it("cria o mcp.json do Cursor quando ele não existe", async () => {
+    await withTempDir("setup-definitivo-cursor-", async (dir) => {
+      const file = path.join(dir, "mcp.json");
+      await addCursorMcp(mcpItem("novo"), file, false);
+
+      expect(JSON.parse(await fs.readFile(file, "utf-8"))).toEqual({
+        mcpServers: {
+          novo: { command: "npx", args: ["-y", "pkg@latest"] },
+        },
+      });
+    });
+  });
+
+  it("preserva outros servidores no mcp.json do Cursor", async () => {
+    await withTempDir("setup-definitivo-cursor-", async (dir) => {
+      const file = path.join(dir, "mcp.json");
+      const original = { mcpServers: { antigo: { command: "old", args: [], env: {} } } };
+      await fs.writeFile(file, JSON.stringify(original));
+
+      await addCursorMcp(mcpItem("novo"), file, false);
+
+      const updated = JSON.parse(await fs.readFile(file, "utf-8"));
+      expect(updated.mcpServers.antigo).toEqual(original.mcpServers.antigo);
+      expect(updated.mcpServers.novo.command).toBe("npx");
+    });
+  });
+
+  it("rejeita mcp.json do Cursor que não contém objeto", async () => {
+    await withTempDir("setup-definitivo-cursor-", async (dir) => {
+      const file = path.join(dir, "mcp.json");
+      await fs.writeFile(file, "[1, 2]");
+
+      await expect(addCursorMcp(mcpItem("novo"), file, false)).rejects.toThrow(
+        "deve conter um objeto JSON"
+      );
+      expect(await fs.readFile(file, "utf-8")).toBe("[1, 2]");
+    });
+  });
+});
+
+describe("adapters", () => {
+  it("registra Claude, Cursor e Codex", () => {
+    expect(Object.keys(ADAPTERS)).toEqual(["claude", "cursor", "codex"]);
+  });
+
+  it("converte skill local em bloco de instrução com o id da skill", async () => {
+    await withTempDir("setup-definitivo-skill-", async (dir) => {
+      const source = path.join(dir, "skill");
+      const output = path.join(dir, "AGENTS.md");
+      await fs.mkdir(source);
+      await fs.writeFile(path.join(source, "SKILL.md"), "# Conteúdo original\n");
+      const item: Item = {
+        id: "skill:teste",
+        kind: "skill",
+        name: "Skill Teste",
+        description: "Descrição da skill.",
+        targets: ["project"],
+        needsSecret: false,
+        source: { type: "local", path: "skill" },
+      };
+
+      const result = await installSkillAsInstruction(item, output, false, {
+        packageRoot: dir,
+      });
+      const instruction = await fs.readFile(output, "utf-8");
+
+      expect(result).toContain("skill convertida em instrução");
+      expect(instruction).toContain("setup-definitivo:start:skill:teste");
+      expect(instruction).toContain("# Skill: Skill Teste\n\nDescrição da skill.");
+      expect(instruction).toContain("# Conteúdo original");
+    });
   });
 });
 

@@ -1,11 +1,11 @@
-import type { Item } from "./schema.js";
+import { CatalogSchema } from "./schema.js";
 
 /**
  * Catálogo declarativo. Adicionar suporte a algo novo = adicionar uma entrada aqui.
  * As skills da squad usam id por capacidade (rename aplicado no empacotamento);
  * libs externas de design vêm por git URL (não são copiadas pra dentro do repo).
  */
-export const CATALOG: Item[] = [
+export const CATALOG = CatalogSchema.parse([
   // ── Squad (nomes por capacidade; label híbrido com persona) ──────────────
   { id: "skill:backend", kind: "skill", name: "Backend (Bruno)", description: "Backend PHP/Laravel: APIs, refactor, debugging.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/backend" }, needsSecret: false },
   { id: "skill:frontend", kind: "skill", name: "Frontend (Fiona)", description: "Frontend React/Vue/CSS, UI/UX e acessibilidade.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/frontend" }, needsSecret: false },
@@ -59,7 +59,7 @@ export const CATALOG: Item[] = [
   {
     id: "config:hooks-basicos", kind: "config", name: "Permissões básicas",
     description: "Permissões explícitas para comandos básicos em settings.json.",
-    targets: ["global", "project"], needsSecret: false,
+    targets: ["global", "project"], harnesses: ["claude"], needsSecret: false,
     config: {
       settings: {
         permissions: {
@@ -74,4 +74,4 @@ export const CATALOG: Item[] = [
       },
     },
   },
-];
+]);

@@ -1,8 +1,11 @@
+import path from "node:path";
 import * as p from "@clack/prompts";
 import { CATALOG } from "./registry/items.js";
 import type { Harness, Item } from "./registry/schema.js";
 import { getAdapter } from "./adapters/index.js";
-import type { Role } from "./generators/roles.js";
+import { handoffContent, type Role } from "./generators/roles.js";
+import { exists, writeFileEnsured } from "./core/fsx.js";
+import { installTool } from "./installers/tool.js";
 
 const HARNESS_LABELS: Record<Harness, string> = {
   claude: "Claude",
@@ -46,6 +49,19 @@ function permissionPreviewLines(item: Item): string[] {
     .map((permission) => `      permissão: ${permission}`);
 }
 
+async function detectedHarnesses(harnesses: Harness[]): Promise<Harness[]> {
+  const detected = await Promise.all(harnesses.map(async (harness) => {
+    const adapter = getAdapter(harness);
+    if (!adapter) return undefined;
+    try {
+      return await adapter.detect("global") ? harness : undefined;
+    } catch {
+      return undefined;
+    }
+  }));
+  return detected.filter((harness): harness is Harness => harness !== undefined);
+}
+
 /**
  * Fase 0/1: wizard esqueleto. Coleta escolhas (incluindo pipeline de papéis
  * multi-harness) e mostra o preview. A aplicação real (adapters/installers e
@@ -55,12 +71,16 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
   p.intro("Setup Definitivo");
 
   // 1) Quais harnesses você usa?
+  const availableHarnesses = Object.keys(HARNESS_LABELS) as Harness[];
+  const initialValues = await detectedHarnesses(availableHarnesses);
   const harnesses = await p.multiselect({
     message: "Quais harnesses você vai usar?",
-    options: (Object.keys(HARNESS_LABELS) as Harness[]).map((h) => ({
+    options: availableHarnesses.map((h) => ({
       value: h,
       label: HARNESS_LABELS[h],
+      hint: getAdapter(h) ? undefined : "adapter não implementado",
     })),
+    initialValues,
     required: true,
   });
   if (p.isCancel(harnesses)) return void p.cancel("Cancelado.");
@@ -179,6 +199,16 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
 /** Fase 1: despacha os itens escolhidos para o adapter de cada harness. */
 export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> {
   const selected = CATALOG.filter((it) => plan.items.includes(it.id));
+  const tools = selected.filter((item) => item.kind === "tool");
+  for (const item of tools) {
+    try {
+      p.log.step(await installTool(item, dryRun));
+    } catch (err) {
+      p.log.step(`ERRO ${item.id}: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+  }
+  const adapterItems = selected.filter((item) => item.kind !== "tool");
   const pipe = plan.pipeline
     ? { harnesses: plan.harnesses, roles: plan.roles }
     : undefined;
@@ -190,7 +220,7 @@ export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> 
       continue;
     }
     // Só itens que fazem sentido no harness (harnesses vazio = todos).
-    const forHarness = selected.filter(
+    const forHarness = adapterItems.filter(
       (it) => !it.harnesses || it.harnesses.includes(h)
     );
     const s = p.spinner();
@@ -202,5 +232,18 @@ export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> 
     });
     s.stop(`${HARNESS_LABELS[h]}:`);
     for (const line of logs) p.log.step(line);
+    // ponytail: sniff de string; único produtor é base.ts. Trocar por status
+    // estruturado quando remove/doctor --fix precisarem (Fase 4).
+    if (logs.some((line) => line.startsWith("ERRO "))) process.exitCode = 1;
+  }
+
+  if (pipe && plan.target === "project") {
+    const file = path.join(process.cwd(), "HANDOFF.md");
+    if (dryRun) p.log.step(`[dry-run] gerar handoff -> ${file}`);
+    else if (await exists(file)) p.log.step(`handoff existente, preservado -> ${file}`);
+    else {
+      await writeFileEnsured(file, handoffContent(pipe));
+      p.log.step(`handoff gerado -> ${file}`);
+    }
   }
 }

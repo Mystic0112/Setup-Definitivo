@@ -41,8 +41,14 @@ export function instructionFile(
   const root = target === "global" ? os.homedir() : cwd;
   const byHarness: Record<Harness, string> = {
     claude: path.join(harnessBase("claude", target, cwd), "CLAUDE.md"),
-    cursor: path.join(root, ".cursorrules"),
-    codex: path.join(root, "AGENTS.md"),
+    cursor:
+      target === "global"
+        ? path.join(harnessBase("cursor", "global", cwd), "rules", "setup-definitivo.md")
+        : path.join(root, ".cursorrules"),
+    codex:
+      target === "global"
+        ? path.join(harnessBase("codex", "global", cwd), "AGENTS.md")
+        : path.join(root, "AGENTS.md"),
     gemini: path.join(root, "GEMINI.md"),
     opencode: path.join(root, "AGENTS.md"),
     omniroute: path.join(harnessBase("omniroute", target, cwd), "instructions.md"),

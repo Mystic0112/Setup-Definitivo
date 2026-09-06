@@ -14,8 +14,12 @@ export async function exists(p: string): Promise<boolean> {
 export async function backupFile(file: string): Promise<string | null> {
   if (!(await exists(file))) return null;
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const bak = `${file}.bak-${stamp}`;
+  const base = `${file}.bak-${stamp}`;
+  let bak = base;
+  let suffix = 1;
+  while (await exists(bak)) bak = `${base}-${suffix++}`;
   await fs.copyFile(file, bak);
+  await fs.chmod(bak, 0o600);
   return bak;
 }
 
@@ -28,5 +32,5 @@ export async function copyDir(src: string, dest: string): Promise<void> {
 /** Escreve um arquivo criando os diretórios necessários. */
 export async function writeFileEnsured(file: string, content: string): Promise<void> {
   await fs.mkdir(path.dirname(file), { recursive: true });
-  await fs.writeFile(file, content, "utf-8");
+  await fs.writeFile(file, content, { encoding: "utf-8", mode: 0o600 });
 }
