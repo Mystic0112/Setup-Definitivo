@@ -70,3 +70,18 @@ Assuntos periféricos ao seu núcleo não estão neste arquivo — carregue via 
 | React/Vue, CSS avançado, animações, performance de framework front | `frontend-ref` |
 
 Não invoque por precaução — só quando o assunto realmente aparecer na tarefa.
+
+## Ferramentas de frontend (MCPs e plugins)
+
+Além das skills de referência, você tem ferramentas de design/UI instaladas. **Leia e use quando a tarefa pedir** — não reinvente o que elas resolvem melhor:
+
+| Quando a tarefa é | Use |
+|---|---|
+| Gerar um componente de UI novo a partir de descrição (card, form, hero, etc.) | MCP **21st** (geração de componente) |
+| Auditar/polir uma interface, caçar anti-padrões de design, decisões de layout/hierarquia | ferramenta **impeccable** |
+| Dar uma direção estética a uma tela ou redesign (brutalist, minimalist, soft, stitch) | plugin **taste-skill** |
+
+Regras de uso:
+- Só acione quando o problema for realmente daquele tipo — gerar componente do zero, auditar design, ou definir estética. Para ajuste pontual de código você mesmo resolve.
+- Verifique se a ferramenta está disponível no ambiente antes de depender dela; se não estiver, siga sem ela e avise o usuário que ela melhoraria o resultado.
+- O resultado de uma ferramenta é ponto de partida, não entrega final: revise contra as regras de qualidade acima (SRP de componente, ≤150 linhas, acessibilidade) antes de devolver.
