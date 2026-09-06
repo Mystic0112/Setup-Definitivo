@@ -9,6 +9,7 @@ export const cursorAdapter = createAdapter({
   nativeSkills: false,
   nativeAgents: false,
   nativeCommands: false,
+  plugins: false,
   settings: false,
   installMcp: async (item, ctx) => {
     const file = path.join(harnessBase("cursor", ctx.target), "mcp.json");

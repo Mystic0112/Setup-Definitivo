@@ -33,7 +33,7 @@ const ArtifactSchema = z.discriminatedUnion("type", [
 
 const StateEntrySchema = z.object({
   itemId: z.string(),
-  kind: z.enum(["mcp", "skill", "agent", "command", "tool", "config"]),
+  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config"]),
   harness: HarnessSchema,
   target: TargetSchema,
   projectRoot: AbsolutePathSchema.nullable(),

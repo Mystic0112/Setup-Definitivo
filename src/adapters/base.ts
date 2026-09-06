@@ -11,6 +11,7 @@ import {
   skillName,
 } from "../installers/skill.js";
 import { installMarkdownFile, markdownFileAsInstruction } from "../installers/markdownFile.js";
+import { installClaudePlugin } from "../installers/plugin.js";
 import { removeStateEntry } from "../installers/remove.js";
 import { roleSkillContent } from "../generators/roles.js";
 import type { Adapter, ApplyContext, ItemResult } from "./types.js";
@@ -25,6 +26,7 @@ interface AdapterOptions {
   nativeSkills: boolean;
   nativeAgents: boolean;
   nativeCommands: boolean;
+  plugins: boolean;
   settings: boolean;
   installMcp(item: Item, ctx: ApplyContext): Promise<McpInstallResult>;
 }
@@ -161,6 +163,15 @@ async function applyItem(
         installed.message + guide,
         installed.artifact ? [installed.artifact] : undefined
       );
+    }
+    case "plugin": {
+      if (!options.plugins) {
+        return itemResult(item.id, `PULADO ${item.id}: ${options.id} não tem gerenciador de plugins`);
+      }
+      const installed = await installClaudePlugin(item, ctx.dryRun);
+      return itemResult(item.id, installed.message, ctx.dryRun ? undefined : [
+        { type: "tool", command: installed.removeCommand },
+      ]);
     }
     case "tool":
       return itemResult(item.id, `PULADO ${item.id}: tools são aplicadas fora do adapter`);

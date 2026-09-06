@@ -6,6 +6,7 @@ export const claudeAdapter = createAdapter({
   nativeSkills: true,
   nativeAgents: true,
   nativeCommands: true,
+  plugins: true,
   settings: true,
   installMcp: async (item, ctx) => ({
     message: await addClaudeMcp(item, ctx.dryRun),

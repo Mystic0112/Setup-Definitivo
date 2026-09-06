@@ -37,7 +37,9 @@ export const ItemSchema = z.object({
   id: z.string().regex(/^[a-z]+:[a-z0-9-]+$/, "formato esperado: kind:nome"),
   // `agent` e `command` são arquivos .md únicos (definição de subagente e slash
   // command); `skill` é um diretório com SKILL.md. Destinos diferentes no harness.
-  kind: z.enum(["mcp", "skill", "agent", "command", "tool", "config"]),
+  // `plugin` é instalado pelo gerenciador do próprio harness a partir de um
+  // marketplace — não copiamos o conteúdo, só registramos a fonte.
+  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config"]),
   name: z.string(),
   description: z.string(),
   targets: z.array(TargetSchema).nonempty(),
@@ -57,6 +59,13 @@ export const ItemSchema = z.object({
   /** Como instalar uma tool externa. Ex.: uv tool install graphifyy. */
   tool: z
     .object({ cmd: z.string(), args: z.array(z.string()).default([]) })
+    .optional(),
+  /** Plugin de marketplace: repo que hospeda o marketplace + nome do plugin. */
+  plugin: z
+    .object({
+      marketplace: z.string(),
+      name: z.string(),
+    })
     .optional(),
   /** Payload de config: patch de settings.json e/ou bloco de instrução. */
   config: z

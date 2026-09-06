@@ -332,9 +332,10 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
 - ~~URLs `OWNER/` no catálogo.~~ ✅ **resolvido.** Investigado o que cada um era de fato:
   - **impeccable**: existe no npm (v4.0.3, Apache-2.0, `github.com/pbakaus/impeccable`) e tem
     instalador próprio → virou `tool:impeccable`.
-  - **design-taste-frontend**: existe só como diretório local, **sem licença declarada** e sem
-    origem git. Redistribuir trabalho de terceiro sem licença não é decisão a tomar em silêncio
-    — item removido até que a origem e a licença sejam conhecidas.
+  - **taste-skill** (era `design-taste`): origem identificada — `github.com/leonxlnx/taste-skill`,
+    **MIT**, e é um **plugin com marketplace**. Entrou como `plugin:taste-skill`: o próprio
+    harness instala, então não redistribuímos conteúdo de terceiro e o autor segue publicando
+    atualizações.
   - **motion**: não existe na máquina nem foi possível identificar a fonte — item removido.
   Nenhuma URL foi inventada: apontar para um repo de nome parecido é o mesmo risco de supply
   chain que a revisão de segurança levantou.

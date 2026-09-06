@@ -35,6 +35,10 @@ export const CATALOG = CatalogSchema.parse([
   { id: "command:lead", kind: "command", name: "/lead — Lead (Leo)", description: "Slash command que invoca o subagente lead.", targets: ["global", "project"], requires: ["agent:lead"], source: { type: "local", path: "assets/commands/lead.md" }, needsSecret: false },
 
   // ── Design & UI ─────────────────────────────────────────────────────────
+  // taste-skill: MIT, github.com/leonxlnx/taste-skill. É um plugin com marketplace,
+  // então o próprio harness instala — não redistribuímos o conteúdo e o autor
+  // continua publicando atualizações.
+  { id: "plugin:taste-skill", kind: "plugin", name: "Taste Skill (design)", description: "Skills de taste para frontend: brutalist, minimalist, soft, redesign, stitch.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "leonxlnx/taste-skill", name: "taste-skill" } },
   // impeccable: verificado no npm (v4.0.3, Apache-2.0, github.com/pbakaus/impeccable).
   // O instalador dele é o próprio pacote, então entra como tool.
   { id: "tool:impeccable", kind: "tool", name: "Impeccable (design/UX)", description: "Skills e comandos de design para agentes; detecção de anti-padrões de UI.", targets: ["global"], needsSecret: false, tool: { cmd: "npx", args: ["-y", "impeccable@latest", "init"] } },
