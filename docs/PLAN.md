@@ -80,6 +80,20 @@ O setup precisa aplicar config em **vários harnesses**, não só Claude Code: C
 - **Detecção automática:** a CLI descobre quais harnesses existem na máquina (procura `~/.claude`, `~/.cursor`, binário `codex`, etc.) e pergunta em quais aplicar.
 - `ponytail:` MVP cobre 2-3 harnesses (Claude + Cursor + Codex); os demais entram por adapter novo, sem mexer no catálogo.
 
+## 3.6 Pipeline multi-harness (papéis) — gerar a skill na hora
+
+Além de instalar itens, o setup pergunta **como os harnesses trabalham juntos**. Fluxo:
+
+1. **Quais harnesses você usa?** (multiselect) — primeira pergunta.
+2. **Usar em conjunto?** Se >1 harness → oferece montar um pipeline.
+3. **Papel de cada um** (multiselect por harness): planejar / codar / revisar / documentar / uso geral.
+   - Exemplo real: Gemini = planejar · Codex = codar · Claude = revisar.
+4. A partir dos papéis, a CLI **gera na hora**:
+   - uma **instrução/skill de papel** em cada harness (no formato dele — skill no Claude, rule no Cursor, seção AGENTS.md no Codex…),
+   - um **protocolo de handoff** compartilhado (`HANDOFF.md` + convenção de branch/PR) descrevendo quem entrega o quê a quem.
+
+**Escopo honesto do "orquestrar":** harnesses são CLIs separadas, sem runtime compartilhado. O setup gera o **papel + protocolo** (cada CLI sabe o que faz e como passar o bastão); handoff 100% automático (um chama o outro sozinho) exige um router tipo OmniRoute — fica pra fase futura (adapter OmniRoute).
+
 ## 4. Arquitetura — registry declarativo (coração do projeto)
 
 Tudo que a CLI sabe instalar vem de um **catálogo declarativo**. Adicionar suporte a algo novo = adicionar uma entrada, não escrever código novo.

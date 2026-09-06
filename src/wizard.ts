@@ -11,19 +11,39 @@ const HARNESS_LABELS: Record<Harness, string> = {
   omniroute: "OmniRoute",
 };
 
+/** Papéis possíveis num pipeline multi-harness. */
+const ROLES = [
+  { value: "plan", label: "Planejar" },
+  { value: "code", label: "Codar" },
+  { value: "review", label: "Revisar" },
+  { value: "docs", label: "Documentar" },
+  { value: "solo", label: "Uso geral (sozinho)" },
+] as const;
+type Role = (typeof ROLES)[number]["value"];
+
 export interface InitOptions {
   dryRun: boolean;
 }
 
+export interface InitPlan {
+  harnesses: Harness[];
+  pipeline: boolean;
+  roles: Record<string, Role[]>; // harness -> papéis
+  target: "global" | "project";
+  items: string[];
+}
+
 /**
- * Fase 0/1: wizard esqueleto. Coleta escolhas e mostra o preview.
- * A aplicação real (adapters/installers) entra nas próximas fases — ver docs/PLAN.md.
+ * Fase 0/1: wizard esqueleto. Coleta escolhas (incluindo pipeline de papéis
+ * multi-harness) e mostra o preview. A aplicação real (adapters/installers e
+ * geração das skills de papel) entra nas próximas fases — ver docs/PLAN.md.
  */
-export async function runInit(opts: InitOptions): Promise<void> {
+export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
   p.intro("Setup Definitivo");
 
+  // 1) Quais harnesses você usa?
   const harnesses = await p.multiselect({
-    message: "Em quais harnesses aplicar?",
+    message: "Quais harnesses você vai usar?",
     options: (Object.keys(HARNESS_LABELS) as Harness[]).map((h) => ({
       value: h,
       label: HARNESS_LABELS[h],
@@ -31,7 +51,37 @@ export async function runInit(opts: InitOptions): Promise<void> {
     required: true,
   });
   if (p.isCancel(harnesses)) return void p.cancel("Cancelado.");
+  const hs = harnesses as Harness[];
 
+  // 2) Usar em conjunto (pipeline de papéis)?
+  const roles: Record<string, Role[]> = {};
+  let pipeline = false;
+
+  if (hs.length > 1) {
+    const combine = await p.confirm({
+      message:
+        "Usar os harnesses em conjunto? (ex.: Gemini planeja, Codex coda, Claude revisa)",
+      initialValue: true,
+    });
+    if (p.isCancel(combine)) return void p.cancel("Cancelado.");
+    pipeline = combine;
+
+    if (pipeline) {
+      for (const h of hs) {
+        const r = await p.multiselect({
+          message: `Papel de ${HARNESS_LABELS[h]} no pipeline:`,
+          options: ROLES.map((x) => ({ value: x.value, label: x.label })),
+          required: true,
+        });
+        if (p.isCancel(r)) return void p.cancel("Cancelado.");
+        roles[h] = r as Role[];
+      }
+    }
+  } else {
+    roles[hs[0]] = ["solo"];
+  }
+
+  // 3) Alvo
   const target = await p.select({
     message: "Alvo da configuração?",
     options: [
@@ -41,6 +91,7 @@ export async function runInit(opts: InitOptions): Promise<void> {
   });
   if (p.isCancel(target)) return void p.cancel("Cancelado.");
 
+  // 4) O que instalar
   const items = await p.multiselect({
     message: "O que instalar?",
     options: CATALOG.map((it) => ({
@@ -59,37 +110,56 @@ export async function runInit(opts: InitOptions): Promise<void> {
       for (const dep of it.requires) chosen.add(dep);
     }
   }
-
   const selected = CATALOG.filter((it) => chosen.has(it.id));
   const needSecret = selected.filter((it) => it.needsSecret);
 
-  const preview = [
-    `Harnesses: ${(harnesses as Harness[]).map((h) => HARNESS_LABELS[h]).join(", ")}`,
+  // Preview
+  const roleLine = (h: Harness) =>
+    `  • ${HARNESS_LABELS[h]}: ${(roles[h] ?? ["solo"])
+      .map((r) => ROLES.find((x) => x.value === r)?.label)
+      .join(" + ")}`;
+
+  const previewLines = [
+    `Harnesses: ${hs.map((h) => HARNESS_LABELS[h]).join(", ")}`,
+    pipeline ? "Modo: pipeline em conjunto" : "Modo: independente",
+    ...(pipeline || hs.length === 1 ? hs.map(roleLine) : []),
     `Alvo: ${target}`,
     "",
     "Itens a instalar:",
     ...selected.map((it) => `  • ${it.id} — ${it.name}`),
     needSecret.length
-      ? `\nPrecisam de credencial (guia será exibido): ${needSecret.map((i) => i.id).join(", ")}`
+      ? `\nPrecisam de credencial (guia será exibido): ${needSecret
+          .map((i) => i.id)
+          .join(", ")}`
       : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+    pipeline
+      ? "\nSerá gerada uma skill de papel por harness + protocolo de handoff."
+      : "",
+  ].filter(Boolean);
 
-  p.note(preview, opts.dryRun ? "PREVIEW (dry-run)" : "PREVIEW");
+  p.note(previewLines.join("\n"), opts.dryRun ? "PREVIEW (dry-run)" : "PREVIEW");
+
+  const plan: InitPlan = {
+    harnesses: hs,
+    pipeline,
+    roles,
+    target: target as "global" | "project",
+    items: [...chosen],
+  };
 
   if (opts.dryRun) {
     p.outro("dry-run: nada foi escrito.");
-    return;
+    return plan;
   }
 
   const go = await p.confirm({ message: "Aplicar?" });
   if (p.isCancel(go) || !go) return void p.cancel("Cancelado.");
 
-  // TODO(fase 1+): despachar para adapters/installers por harness.
+  // TODO(fase 1+): despachar para adapters/installers e gerar skills de papel.
   p.note(
-    "A aplicação real entra na Fase 1+ (adapters/installers).\nVer docs/PLAN.md.",
+    "A aplicação real e a geração das skills de papel entram na Fase 1+.\nVer docs/PLAN.md.",
     "Ainda não implementado"
   );
   p.outro("Escolhas coletadas.");
+  return plan;
 }
