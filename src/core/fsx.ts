@@ -18,8 +18,11 @@ export async function backupFile(file: string): Promise<string | null> {
   let bak = base;
   let suffix = 1;
   while (await exists(bak)) bak = `${base}-${suffix++}`;
-  await fs.copyFile(file, bak);
-  await fs.chmod(bak, 0o600);
+  // Cria já com 0600 em vez de copyFile+chmod: config.toml pode ter API key em
+  // texto puro, e o copyFile deixava uma janela em 0644 (nezuko, MEDIUM).
+  // Buffer (sem encoding) preserva binário; flag "wx" evita corrida no nome.
+  const data = await fs.readFile(file);
+  await fs.writeFile(bak, data, { mode: 0o600, flag: "wx" });
   return bak;
 }
 
