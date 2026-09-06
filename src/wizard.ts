@@ -1,6 +1,8 @@
 import * as p from "@clack/prompts";
 import { CATALOG } from "./registry/items.js";
 import type { Harness } from "./registry/schema.js";
+import { getAdapter } from "./adapters/index.js";
+import type { Role } from "./generators/roles.js";
 
 const HARNESS_LABELS: Record<Harness, string> = {
   claude: "Claude",
@@ -19,7 +21,6 @@ const ROLES = [
   { value: "docs", label: "Documentar" },
   { value: "solo", label: "Uso geral (sozinho)" },
 ] as const;
-type Role = (typeof ROLES)[number]["value"];
 
 export interface InitOptions {
   dryRun: boolean;
@@ -155,11 +156,36 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
   const go = await p.confirm({ message: "Aplicar?" });
   if (p.isCancel(go) || !go) return void p.cancel("Cancelado.");
 
-  // TODO(fase 1+): despachar para adapters/installers e gerar skills de papel.
-  p.note(
-    "A aplicação real e a geração das skills de papel entram na Fase 1+.\nVer docs/PLAN.md.",
-    "Ainda não implementado"
-  );
-  p.outro("Escolhas coletadas.");
+  await applyPlan(plan, opts.dryRun);
+  p.outro(opts.dryRun ? "dry-run concluído." : "Concluído.");
   return plan;
+}
+
+/** Fase 1: despacha os itens escolhidos para o adapter de cada harness. */
+export async function applyPlan(plan: InitPlan, dryRun: boolean): Promise<void> {
+  const selected = CATALOG.filter((it) => plan.items.includes(it.id));
+  const pipe = plan.pipeline
+    ? { harnesses: plan.harnesses, roles: plan.roles }
+    : undefined;
+
+  for (const h of plan.harnesses) {
+    const adapter = getAdapter(h);
+    if (!adapter) {
+      p.log.warn(`${HARNESS_LABELS[h]}: adapter ainda não implementado — pulado.`);
+      continue;
+    }
+    // Só itens que fazem sentido no harness (harnesses vazio = todos).
+    const forHarness = selected.filter(
+      (it) => !it.harnesses || it.harnesses.includes(h)
+    );
+    const s = p.spinner();
+    s.start(`${HARNESS_LABELS[h]}: aplicando ${forHarness.length} itens`);
+    const logs = await adapter.apply(forHarness, {
+      target: plan.target,
+      dryRun,
+      pipeline: pipe,
+    });
+    s.stop(`${HARNESS_LABELS[h]}:`);
+    for (const line of logs) p.log.step(line);
+  }
 }

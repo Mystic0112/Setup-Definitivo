@@ -17,7 +17,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/cli.js",
     "test": "vitest run",
-    "lint": "tsc -p tsconfig.json --noEmit"
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "pack:skills": "tsx scripts/pack-skills.ts"
   },
   "keywords": [
     "cli",

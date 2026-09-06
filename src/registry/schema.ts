@@ -48,6 +48,14 @@ export const ItemSchema = z.object({
   /** Precisa de credencial/login em runtime. Se sim, aponta o guia. */
   needsSecret: z.boolean().default(false),
   guide: z.string().optional(),
+  /** Como registrar um MCP (comando do servidor). Ex.: npx -y @pkg. */
+  mcp: z
+    .object({ cmd: z.string(), args: z.array(z.string()).default([]) })
+    .optional(),
+  /** Como instalar uma tool externa. Ex.: uv tool install graphifyy. */
+  tool: z
+    .object({ cmd: z.string(), args: z.array(z.string()).default([]) })
+    .optional(),
 });
 
 export type Item = z.infer<typeof ItemSchema>;
