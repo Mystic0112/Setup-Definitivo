@@ -2,10 +2,12 @@
 
 CLI interativa (estilo `ruflo`) que configura um ambiente Claude Code completo — MCPs, skills/plugins, `settings.json`, `CLAUDE.md` e ferramentas externas — perguntando no terminal o que o usuário quer adicionar.
 
-- **Distribuição:** Node/TypeScript via `npx`
-- **Alvo:** global (`~/.claude/`) **ou** projeto (`.claude/`) — perguntado na hora
+- **Distribuição:** `npx github:Mystic0112/Setup-Definitivo` (sem npm público; `prepare`
+  compila o `dist/` na instalação). Alternativa: apontar a própria IA para o `SETUP.md`.
+- **Alvo:** global **ou** projeto — perguntado na hora
 - **Repo:** público
-- **Gerencia:** MCPs · Skills/Plugins · settings.json + CLAUDE.md · ferramentas externas
+- **Gerencia:** MCPs · agents · commands · skills · settings/instruções · ferramentas externas
+- **Harnesses com adapter:** Claude, Cursor, Codex
 
 ---
 
@@ -78,7 +80,10 @@ O setup precisa aplicar config em **vários harnesses**, não só Claude Code: C
 - ✅ mapeia direto · ⚠️ degrada com elegância (ex.: skill vira arquivo de regra/instrução onde não há skills nativas) · — não suporta, item é pulado com aviso.
 - Cada adapter implementa a mesma interface: `detect / applyMCP / applySkill / applyInstruction / applyConfig / remove`.
 - **Detecção automática:** a CLI descobre quais harnesses existem na máquina (procura `~/.claude`, `~/.cursor`, binário `codex`, etc.) e pergunta em quais aplicar.
-- `ponytail:` MVP cobre 2-3 harnesses (Claude + Cursor + Codex); os demais entram por adapter novo, sem mexer no catálogo.
+- `ponytail:` MVP cobre 3 harnesses (Claude + Cursor + Codex). Adicionar um harness novo **não**
+  mexe no catálogo — isso se sustentou —, mas também **não é "só um adapter"**: são 7 pontos de
+  edição (schema, targets ×2, installers/mcp, adapters/index, label do wizard, arquivo do adapter),
+  todos verificados em tempo de compilação pelo `Record<Harness, …>` exaustivo.
 
 ## 3.6 Pipeline multi-harness (papéis) — gerar a skill na hora
 
@@ -102,7 +107,7 @@ Tudo que a CLI sabe instalar vem de um **catálogo declarativo**. Adicionar supo
 // src/registry/items.ts
 type Item = {
   id: string;                       // "mcp:oraculo360"
-  kind: "mcp" | "skill" | "tool" | "config";
+  kind: "mcp" | "skill" | "agent" | "command" | "tool" | "config";
   name: string;
   description: string;
   targets: ("global" | "project")[];
@@ -134,7 +139,9 @@ Exemplos de `install` por tipo:
 ```
 1. Detecta ambiente        → node? uv? git?  + quais HARNESSES existem
                              (~/.claude, ~/.cursor, codex, gemini, opencode...)
-2. Pergunta HARNESSES       → em quais aplicar (multiselect, pré-marca os detectados)
+2. Pergunta HARNESSES       → em quais aplicar (multiselect; NADA pré-marcado — a CLI
+                             escreve em config do usuário, então é opt-in explícito.
+                             Os detectados aparecem com hint, sem virem selecionados)
 3. Pergunta ALVO           → global ou projeto (por harness que suporta os dois)
 4. Pergunta CATEGORIAS     → MCPs / Skills / Tools / Config  (multiselect)
 5. Para cada categoria     → multiselect dos itens do catálogo
@@ -186,26 +193,35 @@ setup-definitivo/
 
 ## 8. Catálogo inicial (o teu stack de hoje)
 
-### Skills da squad (renomeadas SÓ no repo — estilo híbrido)
+### Squad: agents + commands (NÃO são skills)
 
-> **Regra:** o rename vale apenas pro que é distribuído no GitHub. O ambiente local do autor
-> permanece com os nomes originais (ESCANOR, BULMA, ...). O rename é aplicado no
-> **empacotamento** (ver §8.1), nunca na instalação local do autor.
+> **Correção de premissa.** O plano original modelava a squad como `skill` (diretório com
+> `SKILL.md`). Está errado: são **agents** (`~/.claude/agents/<nome>.md`, definição de
+> subagente) e **commands** (`~/.claude/commands/<nome>.md`, slash command que invoca o
+> subagente) — arquivos `.md` únicos, em diretórios diferentes. Com o modelo errado, nada
+> da squad instalava. Cada membro gera **duas** entradas de catálogo, e o command declara
+> `requires` do agent correspondente.
 
-| id (repo) | label (UI) | Origem local (não muda) |
-|---|---|---|
-| `skill:backend` | Backend (Bruno) | ESCANOR |
-| `skill:frontend` | Frontend (Fiona) | BULMA |
-| `skill:database` | Database (Diana) | IPPO |
-| `skill:qa` | QA (Quinn) | LEVI |
-| `skill:security` | Security (Sam) | NEZUKO |
-| `skill:devops` | DevOps (Otto) | SAITAMA |
-| `skill:mobile` | Mobile (Mia) | GON |
-| `skill:scripting` | Scripting (Nina) | URARAKA |
-| `skill:architect` | Architect (Artur) | KURAMA |
-| `skill:data` | Data/BI (Dado) | RYUK |
-| `skill:pm` | PM (Pam) | SHIKAMARU |
-| `skill:lead` | Lead (Leo) | LIGHT |
+> **Regra:** o rename vale apenas para o que é distribuído no GitHub. O ambiente local do
+> autor permanece com os nomes originais (ESCANOR, BULMA, ...). Ver §8.1.
+
+| id agent | id command | label (UI) | Origem local (não muda) |
+|---|---|---|---|
+| `agent:backend` | `command:backend` | Backend (Bruno) | ESCANOR |
+| `agent:frontend` | `command:frontend` | Frontend (Fiona) | BULMA |
+| `agent:database` | `command:database` | Database (Diana) | IPPO |
+| `agent:qa` | `command:qa` | QA (Quinn) | LEVI |
+| `agent:security` | `command:security` | Security (Sam) | NEZUKO |
+| `agent:devops` | `command:devops` | DevOps (Otto) | SAITAMA |
+| `agent:mobile` | `command:mobile` | Mobile (Mia) | GON |
+| `agent:scripting` | `command:scripting` | Scripting (Nina) | URARAKA |
+| `agent:architect` | `command:architect` | Architect (Artur) | KURAMA |
+| `agent:data` | `command:data` | Data/BI (Dado) | RYUK |
+| `agent:pm` | `command:pm` | PM (Pam) | SHIKAMARU |
+| `agent:lead` | `command:lead` | Lead (Leo) | LIGHT |
+
+Harness sem esses conceitos (Cursor, Codex) recebe o conteúdo como **bloco de instrução**,
+igual à degradação já usada para skills.
 
 ### Skills/repos externos de design & UI (empacotados via URL do GitHub)
 
@@ -258,22 +274,36 @@ MCPs que exigem credencial/login ganham um doc de conexão em `docs/mcp/<id>.md`
 Separação dura entre **o que o autor usa** e **o que vai no repo**:
 
 ```
-~/.claude/skills/escanor/     (LOCAL do autor — nome original, NUNCA muda)
+~/.claude/agents/escanor.md      (LOCAL do autor — nome original, NUNCA muda)
+~/.claude/commands/escanor.md
         │
-        ▼  script de packaging (npm run pack:skills)
-        │  aplica rename-map.json:  escanor → backend
+        ▼  reescrita de conteúdo (ver abaixo), guiada por rename-map.json
         ▼
-repo/assets/skills/backend/   (DISTRIBUÍDO — nome híbrido)
+repo/assets/agents/backend.md    (DISTRIBUÍDO)
+repo/assets/commands/backend.md
         │
-        ▼  usuário roda `npx setup-definitivo init`
+        ▼  usuário roda `npx github:Mystic0112/Setup-Definitivo init`
         ▼
-usuário/.claude/skills/backend/   (instalado no ambiente de QUEM CLONOU)
+usuário/.claude/agents/backend.md   (instalado no ambiente de QUEM CLONOU)
 ```
 
 - `rename-map.json` guarda o de-para (`escanor→backend`, etc.). Único ponto de verdade.
-- O packaging **lê** as skills locais e **escreve** em `assets/` já renomeadas — inclui reescrever o `name:` no frontmatter do `SKILL.md` e qualquer referência interna ao nome antigo.
 - O ambiente local do autor não é tocado em momento nenhum.
-- `ponytail:` rename é cópia + substituição de nome; não reescreve a lógica da skill.
+
+> **Rename mecânico NÃO funciona aqui.** Medido: 227 ocorrências dos nomes em 24 arquivos.
+> Duas razões:
+> 1. **Prosa de persona.** Ex.: *"Meu Quirk é Zero Gravity… Float!"* — trocar `uraraka` por
+>    `scripting` deixa a referência órfã e o texto sem sentido.
+> 2. **Referências cruzadas.** O coordenador (`light`→`lead`) sozinho tem 71 linhas citando
+>    outros membros, incluindo a tabela de roteamento. Trocar só o nome do arquivo faz a
+>    squad apontar para agentes que não existem.
+>
+> Por isso a reescrita é feita por agentes de IA (um lote por grupo de membros), preservando
+> tom e conteúdo técnico e removendo a temática, com revisão antes de entrar no repo.
+> Também exige ajuste de **concordância de gênero** (`nezuko`→`security` vira masculino).
+
+- `npm run pack:squad` é um **verificador**, não um renomeador: confere completude dos 24
+  arquivos, ausência de termos da persona antiga e referências cruzadas órfãs.
 
 ## 9. Roadmap por fases
 
@@ -289,14 +319,38 @@ Installer de `config` (merge settings.json + blocos CLAUDE.md), `tool` (uv/npm) 
 **Fase 3 — Multi-harness (3-5 dias)**
 Camada de adapters. Adicionar Cursor e Codex além do Claude. Detecção automática de harness. Preview e apply por harness. Matriz de capacidade com degradação elegante.
 
-**Fase 4 — Robustez (2-3 dias)**
-`remove`/`update`, resolução de dependências, testes vitest, publicar no npm (`npx setup-definitivo`).
+**Fase 4 — Robustez** ✅ concluída
+`remove` (manifesto de estado + remoção conservadora) e `update` (reaplicação idempotente),
+testes vitest. Publicação no npm **saiu do escopo**: a distribuição é via
+`npx github:Mystic0112/Setup-Definitivo`, com `prepare` compilando o `dist/` na instalação.
+
+**Fase 4.5 — Modelo agent/command + SETUP.md** ✅ concluída
+Squad remodelada como agents + commands; `SETUP.md` para apontar a própria IA ao repositório.
 
 **Fase 5 — Mais harnesses + extras (backlog)**
 Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design", "só monitoramento"), export/import de config, `--profile`.
 
-## 10. Decisões em aberto
+## 10. Pendências conhecidas
 
-- Nome final do pacote npm (`setup-definitivo` funciona; espaço vira hífen).
-- Skills empacotadas dentro do repo (`assets/`) vs baixadas de fontes externas na hora.
-- Publicar no npm desde o início ou só rodar via `npx github:user/repo` até estabilizar.
+**Bloqueiam divulgar o repositório:**
+
+- **URLs `OWNER/` no catálogo.** `skill:impeccable`, `skill:design-taste` e `skill:motion`
+  apontam para placeholders. Hoje são pulados com aviso; precisam do repo/ref reais.
+- **Nomes de pacote dos MCPs não conferidos.** `@21st-dev/magic`, `@clickup/mcp-server`,
+  `notebooklm-mcp`, `@wonderwhy-er/desktop-commander` e `graphifyy` foram inferidos, não
+  verificados no registro. Nome inexistente = qualquer um pode registrá-lo e ganhar execução
+  na máquina de quem instalar (dependency confusion). **Conferir antes de divulgar.**
+
+**Dívida técnica registrada (não bloqueia):**
+
+- Escrita não atômica (`writeFile` trunca; falta tmp + `rename`).
+- `.bak-*` acumulam sem poda; em alvo projeto caem na raiz do repo do usuário, que
+  provavelmente não os ignora no `.gitignore`.
+- Preview do wizard é global, não por harness: mostra permissões do Claude mesmo com só
+  Cursor selecionado.
+- `item.targets` é campo declarado sem nenhum leitor em `src/` — parece garantia e não é.
+- Clone git usa branch mutável (`ref: "main"`), sem pin de SHA, e o conteúdo vai para um
+  diretório carregado automaticamente pelo agente.
+- `settingsFile()` devolve caminho para os 6 harnesses, mas só o Claude tem esse conceito —
+  armadilha para o próximo adapter.
+- Skills de fonte git ainda não convertem para instrução em harness degradado.
