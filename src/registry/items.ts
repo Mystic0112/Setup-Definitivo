@@ -40,9 +40,11 @@ export const CATALOG = CatalogSchema.parse([
   { id: "skill:motion", kind: "skill", name: "Motion", description: "Biblioteca de animação/motion.", targets: ["global", "project"], source: { type: "git", repo: "https://github.com/OWNER/motion", ref: "main" }, needsSecret: false },
 
   // ── MCPs ─────────────────────────────────────────────────────────────────
-  // NB: cmd/args de cada MCP precisam de conferência na doc oficial antes de publicar.
-  { id: "mcp:21st", kind: "mcp", name: "21st.dev Magic", description: "Geração de componentes UI via Magic MCP.", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/21st.md", mcp: { cmd: "npx", args: ["-y", "@21st-dev/magic@latest"] } },
-  { id: "mcp:clickup", kind: "mcp", name: "ClickUp", description: "Tarefas, docs e workspace do ClickUp.", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/clickup.md", mcp: { cmd: "npx", args: ["-y", "@clickup/mcp-server@latest"] } },
+  // Nomes verificados no registro npm em 2026-09-06. @21st-dev/magic era um proxy
+  // de compatibilidade depreciado; o pacote atual é @21st-dev/cli.
+  // O 21st é um MCP HTTP (url + header com API key), não um servidor stdio: o
+  // próprio CLI dele faz o registro e o login. Por isso entra como tool, não mcp.
+  { id: "tool:21st", kind: "tool", name: "21st.dev (componentes UI)", description: "Roda o instalador oficial do 21st, que registra o MCP e cuida do login.", targets: ["global"], needsSecret: true, guide: "docs/mcp/21st.md", tool: { cmd: "npx", args: ["-y", "@21st-dev/cli@latest", "init"] } },
   { id: "mcp:notebooklm", kind: "mcp", name: "NotebookLM", description: "Notebooks, fontes e geração (áudio/vídeo/slides).", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/notebooklm.md", mcp: { cmd: "npx", args: ["-y", "notebooklm-mcp@latest"] } },
   { id: "mcp:desktop-commander", kind: "mcp", name: "Desktop Commander", description: "Controle de terminal e arquivos.", targets: ["global", "project"], needsSecret: false, mcp: { cmd: "npx", args: ["-y", "@wonderwhy-er/desktop-commander@latest"] } },
 

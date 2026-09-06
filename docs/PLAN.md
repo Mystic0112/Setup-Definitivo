@@ -249,7 +249,6 @@ MCPs que exigem credencial/login ganham um doc de conexão em `docs/mcp/<id>.md`
 | MCP | Guia | O que o guia cobre |
 |---|---|---|
 | `mcp:21st` | `docs/mcp/21st.md` | criar conta 21st.dev, gerar API key, onde colar (env), teste |
-| `mcp:clickup` | `docs/mcp/clickup.md` | token da API, workspace id, teste |
 
 (Outros MCPs com login, como notebooklm, também ganham guia curto.)
 
@@ -259,7 +258,6 @@ MCPs que exigem credencial/login ganham um doc de conexão em `docs/mcp/<id>.md`
 
 | id | kind | Observação |
 |---|---|---|
-| `mcp:clickup` | mcp | token |
 | `mcp:notebooklm` | mcp | login interativo (`notebooklm login`) |
 | `mcp:desktop-commander` | mcp | |
 | `skill:graphify` | skill | + `requires: tool:graphify` |
@@ -336,10 +334,11 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
 
 - **URLs `OWNER/` no catálogo.** `skill:impeccable`, `skill:design-taste` e `skill:motion`
   apontam para placeholders. Hoje são pulados com aviso; precisam do repo/ref reais.
-- **Nomes de pacote dos MCPs não conferidos.** `@21st-dev/magic`, `@clickup/mcp-server`,
-  `notebooklm-mcp`, `@wonderwhy-er/desktop-commander` e `graphifyy` foram inferidos, não
-  verificados no registro. Nome inexistente = qualquer um pode registrá-lo e ganhar execução
-  na máquina de quem instalar (dependency confusion). **Conferir antes de divulgar.**
+- ~~Nomes de pacote dos MCPs não conferidos.~~ ✅ **verificados no registro npm (2026-09-06).**
+  Achados: `@clickup/mcp-server` **não existia** (404) — item removido do catálogo por ser
+  configuração pessoal, como o oráculo. `@21st-dev/magic` era proxy de compatibilidade
+  depreciado e o 21st é MCP **HTTP**, não stdio: virou `tool` que roda o instalador oficial.
+  Confirmados: `notebooklm-mcp`, `@wonderwhy-er/desktop-commander`, `graphifyy` (PyPI).
 
 **Dívida técnica registrada (não bloqueia):**
 

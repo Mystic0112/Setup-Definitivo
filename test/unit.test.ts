@@ -96,13 +96,13 @@ describe("filesystem", () => {
 
 describe("mcp", () => {
   it("deriva o nome curto do id", () => {
-    const item = CATALOG.find((i) => i.id === "mcp:clickup")!;
-    expect(mcpName(item)).toBe("clickup");
+    const item = CATALOG.find((i) => i.id === "mcp:notebooklm")!;
+    expect(mcpName(item)).toBe("notebooklm");
   });
   it("monta os args do claude mcp add", () => {
-    const item = CATALOG.find((i) => i.id === "mcp:21st")!;
+    const item = CATALOG.find((i) => i.id === "mcp:notebooklm")!;
     expect(claudeMcpArgs(item)).toEqual([
-      "mcp", "add", "21st", "--", "npx", "-y", "@21st-dev/magic@latest",
+      "mcp", "add", "notebooklm", "--", "npx", "-y", "notebooklm-mcp@latest",
     ]);
   });
 
