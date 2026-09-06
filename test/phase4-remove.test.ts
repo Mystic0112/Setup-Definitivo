@@ -29,14 +29,20 @@ async function withTempDir(run: (dir: string) => Promise<void>): Promise<void> {
   }
 }
 
+// projectRoot é derivado do próprio tempdir onde o artefato vive (o guard de
+// raízes permitidas de remove.ts exige que o caminho caia sob projectRoot ou sob
+// o dir de config do harness — um projectRoot fixo que não bate seria recusado).
 function entry(itemId: string, artifact: Artifact): StateEntry {
   const kind = itemId.split(":")[0] as StateEntry["kind"];
+  const match = "path" in artifact
+    ? artifact.path.match(/^(.*setup-definitivo-remove-[^/]+)/)
+    : null;
   return {
     itemId,
     kind,
     harness: artifact.type === "toml-section" ? "codex" : "cursor",
     target: "project",
-    projectRoot: "/tmp/projeto-falso",
+    projectRoot: match ? match[1] : "/tmp/projeto-falso",
     artifacts: [artifact],
     installedAt: "2026-09-06T12:00:00.000Z",
   };

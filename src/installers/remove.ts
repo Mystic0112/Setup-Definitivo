@@ -9,6 +9,7 @@ import {
   type Artifact,
   type StateEntry,
 } from "../core/state.js";
+import { harnessBase } from "../core/targets.js";
 import { removeBlock } from "./config.js";
 
 export interface RemovalResult {
@@ -215,10 +216,48 @@ async function preflightArtifact(artifact: Artifact): Promise<PreflightResult> {
   }
 }
 
+/**
+ * Raízes onde a CLI pode apagar/editar, derivadas da entry. Os diretórios globais
+ * vêm do home do usuário (confiável em runtime), NÃO do manifesto — então um
+ * manifesto adulterado apontando para fora (ex.: /etc, /tmp) é recusado. Sem isso,
+ * `remove` faria `rm` de caminho arbitrário (achado HIGH da auditoria de segurança).
+ */
+function allowedRoots(entry: StateEntry): string[] {
+  const roots = new Set<string>();
+  roots.add(harnessBase(entry.harness, "global"));
+  if (entry.target === "project" && entry.projectRoot) {
+    roots.add(harnessBase(entry.harness, "project", entry.projectRoot));
+    roots.add(entry.projectRoot);
+  }
+  return [...roots].map((root) => path.resolve(root));
+}
+
+function withinAllowedRoots(target: string, roots: string[]): boolean {
+  const resolved = path.resolve(target);
+  return roots.some((root) => resolved === root || resolved.startsWith(root + path.sep));
+}
+
+function artifactPath(artifact: Artifact): string | null {
+  return "path" in artifact ? artifact.path : null;
+}
+
 export async function removeStateEntry(
   entry: StateEntry,
   dryRun: boolean
 ): Promise<RemovalResult> {
+  const roots = allowedRoots(entry);
+  const foraDoEscopo = entry.artifacts
+    .map(artifactPath)
+    .filter((p): p is string => p !== null && !withinAllowedRoots(p, roots));
+  if (foraDoEscopo.length) {
+    return {
+      itemId: entry.itemId,
+      status: "skipped",
+      message: `${entry.itemId}: RECUSADO — caminho fora das raízes gerenciadas: ${foraDoEscopo.join(", ")}`,
+      removed: false,
+      entryKey: stateEntryKey(entry),
+    };
+  }
   const checks = await Promise.all(entry.artifacts.map(preflightArtifact));
   const refusals = checks.flatMap((check) => check.refusal ? [check.refusal] : []);
   if (refusals.length) {
