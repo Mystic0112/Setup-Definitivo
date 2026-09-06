@@ -18,6 +18,26 @@ const HARNESS_LABELS: Record<Harness, string> = {
   omniroute: "OmniRoute",
 };
 
+/**
+ * Categorias do wizard: uma pergunta por grupo, em vez de um multiselect com o
+ * catálogo inteiro. A ordem é a de leitura — o que a pessoa mais quer primeiro.
+ */
+const CATEGORIES: { label: string; hint: string; kinds: Item["kind"][] }[] = [
+  { label: "Agentes da squad", hint: "especialistas por domínio", kinds: ["agent"] },
+  { label: "Slash commands", hint: "atalhos que invocam os agentes", kinds: ["command"] },
+  { label: "MCPs", hint: "servidores que dão capacidades novas", kinds: ["mcp"] },
+  { label: "Plugins", hint: "instalados pelo marketplace do harness", kinds: ["plugin"] },
+  { label: "Skills", hint: "conhecimento carregado sob demanda", kinds: ["skill"] },
+  { label: "Ferramentas", hint: "dependências externas da máquina", kinds: ["tool"] },
+  { label: "Configuração", hint: "instruções base e permissões", kinds: ["config"] },
+];
+
+/** Item faz sentido em pelo menos um dos harnesses escolhidos. */
+function appliesTo(item: Item, harnesses: Harness[]): boolean {
+  if (!item.harnesses) return true;
+  return harnesses.some((harness) => item.harnesses!.includes(harness));
+}
+
 /** Papéis possíveis num pipeline multi-harness. */
 const ROLES = [
   { value: "plan", label: "Planejar" },
@@ -131,20 +151,35 @@ export async function runInit(opts: InitOptions): Promise<InitPlan | void> {
   });
   if (p.isCancel(target)) return void p.cancel("Cancelado.");
 
-  // 4) O que instalar
-  const items = await p.multiselect({
-    message: "O que instalar?",
-    options: CATALOG.map((it) => ({
-      value: it.id,
-      label: `${it.name}${it.needsSecret ? " 🔑" : ""}`,
-      hint: it.kind,
-    })),
-    required: true,
-  });
-  if (p.isCancel(items)) return void p.cancel("Cancelado.");
+  // 4) O que instalar — uma pergunta por categoria, porque um multiselect com
+  // o catálogo inteiro vira uma parede impossível de ler.
+  const picked: string[] = [];
+  for (const group of CATEGORIES) {
+    const available = CATALOG.filter(
+      (item) => group.kinds.includes(item.kind) && appliesTo(item, hs)
+    );
+    if (!available.length) continue;
+
+    const selection = await p.multiselect({
+      message: `${group.label} — ${group.hint} (${available.length} disponíveis)`,
+      options: available.map((item) => ({
+        value: item.id,
+        label: `${item.name}${item.needsSecret ? " 🔑" : ""}`,
+        hint: item.description.slice(0, 60),
+      })),
+      required: false,
+    });
+    if (p.isCancel(selection)) return void p.cancel("Cancelado.");
+    picked.push(...(selection as string[]));
+  }
+
+  if (!picked.length) {
+    p.outro("Nada selecionado; nenhuma alteração feita.");
+    return;
+  }
 
   // Resolve dependências (requires) declaradas no catálogo.
-  const chosen = new Set(items as string[]);
+  const chosen = new Set(picked);
   for (const it of CATALOG) {
     if (chosen.has(it.id) && it.requires) {
       for (const dep of it.requires) chosen.add(dep);

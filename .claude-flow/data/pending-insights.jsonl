@@ -27,3 +27,6 @@
 {"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/src/registry/schema.ts","success":true,"timestamp":1788709270838,"sessionId":null}
 {"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/src/installers/plugin.ts","success":true,"timestamp":1788709280611,"sessionId":null}
 {"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/test/plugin.test.ts","success":true,"timestamp":1788709360819,"sessionId":null}
+{"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/src/wizard.ts","success":true,"timestamp":1788710139302,"sessionId":null}
+{"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/src/wizard.ts","success":true,"timestamp":1788710149252,"sessionId":null}
+{"type":"edit","file":"/home/heliodev/projetos/setup-definitivo/test/catalog.test.ts","success":true,"timestamp":1788710214946,"sessionId":null}

@@ -52,11 +52,39 @@ export const CATALOG = CatalogSchema.parse([
   { id: "mcp:notebooklm", kind: "mcp", name: "NotebookLM", description: "Notebooks, fontes e geração (áudio/vídeo/slides).", targets: ["global", "project"], needsSecret: true, guide: "docs/mcp/notebooklm.md", mcp: { cmd: "npx", args: ["-y", "notebooklm-mcp@latest"] } },
   { id: "mcp:desktop-commander", kind: "mcp", name: "Desktop Commander", description: "Controle de terminal e arquivos.", targets: ["global", "project"], needsSecret: false, mcp: { cmd: "npx", args: ["-y", "@wonderwhy-er/desktop-commander@latest"] } },
 
-  // ── Ferramentas + skills de produtividade ────────────────────────────────
-  { id: "tool:graphify", kind: "tool", name: "graphify (motor)", description: "uv tool install graphifyy — motor de grafo de conhecimento.", targets: ["global"], needsSecret: false, tool: { cmd: "uv", args: ["tool", "install", "graphifyy"] } },
-  { id: "skill:graphify", kind: "skill", name: "graphify (skill)", description: "Orquestra o graphify: código/docs → grafo consultável.", targets: ["global", "project"], requires: ["tool:graphify"], source: { type: "local", path: "assets/skills/graphify" }, needsSecret: false },
-  { id: "skill:caveman", kind: "skill", name: "caveman", description: "Estilo de resposta terso.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/caveman" }, needsSecret: false },
-  { id: "skill:ponytail", kind: "skill", name: "ponytail", description: "Solução mais simples que funciona (anti over-engineering).", targets: ["global", "project"], source: { type: "local", path: "assets/skills/ponytail" }, needsSecret: false },
+  // ── Skills de referência (carregadas sob demanda pelos agents da squad) ──
+  { id: "skill:php-laravel-ref", kind: "skill", name: "php-laravel-ref", description: "PHP 8.3/8.4 e Laravel 11/12/13: features por versão e breaking changes.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/php-laravel-ref" }, needsSecret: false },
+  { id: "skill:react-ref", kind: "skill", name: "react-ref", description: "React 19: Server Components, Actions, use(), useOptimistic, compilador.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/react-ref" }, needsSecret: false },
+  { id: "skill:frontend-ref", kind: "skill", name: "frontend-ref", description: "Frontend fora do núcleo: React/Vue, CSS avançado, animações, performance.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/frontend-ref" }, needsSecret: false },
+  { id: "skill:db-engines-ref", kind: "skill", name: "db-engines-ref", description: "Engines de banco: Postgres, MySQL, SQLite, Redis — tuning e índices.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/db-engines-ref" }, needsSecret: false },
+  { id: "skill:owasp-laravel-ref", kind: "skill", name: "owasp-laravel-ref", description: "OWASP Top 10 mapeado para Laravel/PHP, headers e checklist LGPD.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/owasp-laravel-ref" }, needsSecret: false },
+  { id: "skill:devops-ref", kind: "skill", name: "devops-ref", description: "Docker avançado, CI/CD (GitHub Actions, GitLab CI), cloud e Terraform.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/devops-ref" }, needsSecret: false },
+  { id: "skill:arch-ddd-ref", kind: "skill", name: "arch-ddd-ref", description: "Arquitetura e DDD: modular monolith, API design, event-driven.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/arch-ddd-ref" }, needsSecret: false },
+  { id: "skill:pm-ref", kind: "skill", name: "pm-ref", description: "Gestão de projetos: metodologias, estimativas, priorização.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/pm-ref" }, needsSecret: false },
+  { id: "skill:data-bi-ref", kind: "skill", name: "data-bi-ref", description: "Data/BI: ETL/ELT, warehouses, SQL analítico, dashboards.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/data-bi-ref" }, needsSecret: false },
+  { id: "skill:mobile-ref", kind: "skill", name: "mobile-ref", description: "React Native (New Architecture, Expo) e Flutter (Dart 3).", targets: ["global", "project"], source: { type: "local", path: "assets/skills/mobile-ref" }, needsSecret: false },
+  { id: "skill:python-node-ref", kind: "skill", name: "python-node-ref", description: "FastAPI, Express/Fastify, padrões async, CLIs e packaging.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/python-node-ref" }, needsSecret: false },
+  { id: "skill:api-docs-ref", kind: "skill", name: "api-docs-ref", description: "OpenAPI/Swagger: Scramble, L5-Swagger, Scribe e fluxo contract-first.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/api-docs-ref" }, needsSecret: false },
+
+  // ── Skills de produtividade ─────────────────────────────────────────────
+  { id: "skill:codex-code", kind: "skill", name: "codex-code", description: "Delega implementação ao Codex e revisa o resultado com a squad.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/codex-code" }, needsSecret: false },
+  { id: "skill:defuddle", kind: "skill", name: "defuddle", description: "Extrai markdown limpo de páginas web, economizando tokens.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/defuddle" }, needsSecret: false },
+  { id: "skill:notebooklm", kind: "skill", name: "notebooklm", description: "API completa do Google NotebookLM: fontes, áudio, vídeo, slides.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/notebooklm" }, needsSecret: false },
+  { id: "skill:obsidian-cli", kind: "skill", name: "obsidian-cli", description: "Lê, cria e busca notas em vaults do Obsidian.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-cli" }, needsSecret: false },
+  { id: "skill:json-canvas", kind: "skill", name: "json-canvas", description: "Cria e edita arquivos .canvas do Obsidian: mapas mentais, fluxogramas.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/json-canvas" }, needsSecret: false },
+  { id: "skill:skill-builder", kind: "skill", name: "skill-builder", description: "Cria novas skills com frontmatter e estrutura corretos.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/skill-builder" }, needsSecret: false },
+
+  // ── Playbooks de pentest (Strix, Apache-2.0 — ver assets/playbooks/ATTRIBUTION.md)
+  // O agent:security depende deles: referencia os arquivos por caminho.
+  { id: "skill:strix-playbooks", kind: "skill", name: "Playbooks de pentest (Strix)", description: "63 playbooks por vulnerabilidade, framework, cloud e protocolo. Usados pelo agent:security.", targets: ["global"], source: { type: "local", path: "assets/playbooks" }, needsSecret: false },
+
+  // ── Plugins de marketplace (o harness instala; nada é redistribuído) ────
+  { id: "plugin:caveman", kind: "plugin", name: "caveman (estilo terso)", description: "Respostas compactas, sem perder substância técnica.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "JuliusBrussee/caveman", name: "caveman" } },
+  { id: "plugin:ponytail", kind: "plugin", name: "ponytail (anti over-engineering)", description: "Força a solução mais simples que funciona.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "DietrichGebert/ponytail", name: "ponytail" } },
+
+  // ── Ferramentas ─────────────────────────────────────────────────────────
+  // O próprio graphify instala a skill dele em 19 plataformas — melhor que copiar.
+  { id: "tool:graphify", kind: "tool", name: "graphify (grafo de conhecimento)", description: "Motor + skill: transforma código/docs em grafo consultável.", targets: ["global"], needsSecret: false, tool: { cmd: "uv", args: ["tool", "install", "graphifyy"] } },
 
   // ── Config ────────────────────────────────────────────────────────────────
   {

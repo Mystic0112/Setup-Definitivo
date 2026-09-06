@@ -353,6 +353,7 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
   provavelmente não os ignora no `.gitignore`.
 - Preview do wizard é global, não por harness: mostra permissões do Claude mesmo com só
   Cursor selecionado.
+- Skills de fonte git ainda não convertem para instrução em harness degradado.
 - `item.targets` é campo declarado sem nenhum leitor em `src/` — parece garantia e não é.
 - Clone git usa branch mutável (`ref: "main"`), sem pin de SHA, e o conteúdo vai para um
   diretório carregado automaticamente pelo agente.
