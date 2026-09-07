@@ -361,3 +361,29 @@ Adapters de Gemini CLI, opencode, OmniRoute. Perfis prontos ("full", "só design
 - `settingsFile()` devolve caminho para os 6 harnesses, mas só o Claude tem esse conceito —
   armadilha para o próximo adapter.
 - Skills de fonte git ainda não convertem para instrução em harness degradado.
+
+## Revisão do `remove` — achados e status
+
+Auditoria de segurança (nezuko) + QA com mutation testing (levi) sobre o comando
+destrutivo. Todos os achados foram reproduzidos por execução antes de corrigir.
+
+| # | Achado | Status |
+|---|---|---|
+| HIGH | deleção de caminho arbitrário: manifesto sem allowlist de raízes | ✅ allowlist derivada da entry; dirs globais vêm do home em runtime, não do manifesto |
+| MEDIUM | backup com credencial nascia dentro do repo git do usuário | ✅ backups em `~/.setup-definitivo/backups` (0700) |
+| MEDIUM | janela 0644 no backup (copyFile + chmod) | ✅ criado já com `mode: 0o600` e flag `wx` |
+| LOW | TOCTOU: escrita de conteúdo obsoleto sobre edição concorrente | ✅ `writeIfUnchanged` relê e compara; fail-closed |
+| HIGH (cobertura) | portão de confirmação sem nenhum teste | ✅ 5 testes: pede, cancela, confirma, `--yes`, `--dry-run` |
+| MEDIUM (cobertura) | guard de dir trocado por symlink sem teste | ✅ testado com digest batendo, para isolar o guard |
+| LOW (cobertura) | recusa de separador TOML alterado sem teste | ✅ testado; mutante morre |
+| LOW (cobertura) | exit code em recusa sem teste | ✅ testado |
+| LOW (cobertura) | curto-circuito "bloco já ausente" sem teste | ✅ testado |
+
+Verificado OK pela auditoria, sem mudança: remoção de seção TOML preserva
+vizinhos e segredos de outros servidores; recusa seções com sub-tabela; valida e
+restaura backup se o TOML ficar inválido; Cursor remove só a chave certa; symlink
+na raiz é recusado; nenhum caminho loga conteúdo de config ou segredo.
+
+`ponytail:` o sub-clause `isSymbolicLink()` em `preflightDir` é redundante —
+`lstat` de symlink já dá `!isDirectory()`. Mantido como belt-and-suspenders; não
+é matável por mutação isolada, e o teste trava o comportamento de recusa.

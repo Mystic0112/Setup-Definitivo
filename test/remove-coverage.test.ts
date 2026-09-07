@@ -132,3 +132,40 @@ describe("remove — exit code", () => {
     });
   });
 });
+
+// levi (BAIXA): o ramo que recusa quando o separador declarado não está mais
+// antes da seção nunca era exercitado (os testes usavam separador presente).
+describe("remove — separador da seção TOML alterado", () => {
+  it("recusa quando o separador declarado não precede mais a seção", async () => {
+    await withTempDir(async (dir) => {
+      const file = path.join(dir, ".codex", "config.toml");
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      // só UM \n antes da seção, mas o artefato declara separator "\n\n"
+      const content = 'model = "x"\n[mcp_servers.alvo]\ncommand = "npx"\nargs = []\n';
+      await fs.writeFile(file, content);
+      const secao = '[mcp_servers.alvo]\ncommand = "npx"\nargs = []';
+
+      const entry: StateEntry = {
+        itemId: "mcp:alvo",
+        kind: "mcp",
+        harness: "codex",
+        target: "project",
+        projectRoot: dir,
+        artifacts: [{
+          type: "toml-section",
+          path: file,
+          name: "alvo",
+          digest: sha(secao),
+          separator: "\n\n",
+        }],
+        installedAt: "2026-09-06T12:00:00.000Z",
+      };
+
+      const result = await removeStateEntry(entry, false);
+      expect(result.status).toBe("skipped");
+      expect(result.message).toContain("separador");
+      // arquivo intacto
+      expect(await fs.readFile(file, "utf-8")).toBe(content);
+    });
+  });
+});
