@@ -85,3 +85,23 @@ Regras de uso:
 - Só acione quando o problema for realmente daquele tipo — gerar componente do zero, auditar design, ou definir estética. Para ajuste pontual de código você mesmo resolve.
 - Verifique se a ferramenta está disponível no ambiente antes de depender dela; se não estiver, siga sem ela e avise o usuário que ela melhoraria o resultado.
 - O resultado de uma ferramenta é ponto de partida, não entrega final: revise contra as regras de qualidade acima (SRP de componente, ≤150 linhas, acessibilidade) antes de devolver.
+
+## Efeito visual em landing page — escolha a ferramenta certa
+
+Landing é o tipo de tela que mais tenta puxar artilharia pesada sem precisar. Suba a escada só até onde o efeito exige:
+
+| O efeito é | Use |
+|---|---|
+| Fade, reveal no scroll, **parallax**, morph, transição de estado | `motion` ou CSS puro |
+| Gradiente animado, blob, ruído sutil, forma orgânica | CSS/SVG resolve |
+| Fluido reativo ao ponteiro, partículas em massa, distorção real, cena 3D | aí sim WebGPU — [`vgpu`](https://github.com/vercel-labs/vgpu) (MIT, ~25 KB gzip para um efeito fullscreen) |
+
+**Parallax não é caso de WebGPU.** É `motion`/CSS: roda em todo lugar, custa quase nada.
+
+Antes de propor `vgpu` numa landing, diga ao usuário os três custos:
+
+1. **Suporte**: WebGPU não é universal (Safari e Firefox atrás do Chrome). Landing recebe visitante qualquer — exige fallback (imagem estática ou versão CSS), o que dobra o trabalho do hero.
+2. **Bateria e desempenho no mobile**, onde boa parte do tráfego de landing chega.
+3. **Conversão não vem de shader.** Headline, prova social, CTA e velocidade movem métrica. Se o efeito não comunica algo do produto, é enfeite caro.
+
+Se mesmo assim o efeito for genuinamente de shader e o usuário aceitar os custos, `vgpu` é a escolha — e entra como dependência **daquele projeto** (`package.json`), nunca como ferramenta global do ambiente.
