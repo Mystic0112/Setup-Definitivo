@@ -48,6 +48,37 @@ describe("integridade do catálogo", () => {
     expect(Number(declarado)).toBe(CATALOG.length);
   });
 
+  // Segunda deriva do mesmo tipo: o agent-builder entrou no catálogo e a tabela
+  // do README continuou dizendo 12 agentes. Cada contagem por categoria também
+  // é conferida contra o catálogo.
+  it("as contagens por categoria no README batem com o catálogo", async () => {
+    const readme = await fs.readFile(path.join(pkgRoot, "README.md"), "utf-8");
+    const conta = (kind: string) => CATALOG.filter((item) => item.kind === kind).length;
+    const esperado: [RegExp, number][] = [
+      [/Agentes \((\d+)\)/, conta("agent")],
+      [/Skills \((\d+)\)/, conta("skill")],
+      [/MCPs \((\d+)\)/, conta("mcp")],
+      [/Plugins \((\d+)\)/, conta("plugin")],
+      [/Ferramentas \((\d+)\)/, conta("tool")],
+      [/Configuração \((\d+)\)/, conta("config")],
+    ];
+    for (const [padrao, valor] of esperado) {
+      const achado = readme.match(padrao)?.[1];
+      expect(achado, `README precisa declarar ${padrao}`).toBeTruthy();
+      expect(Number(achado), `contagem de ${padrao}`).toBe(valor);
+    }
+  });
+
+  // Todo agente do catálogo precisa aparecer na tabela do README — senão o
+  // leitor não descobre que ele existe.
+  it("todo agent do catálogo está listado no README", async () => {
+    const readme = await fs.readFile(path.join(pkgRoot, "README.md"), "utf-8");
+    const ausentes = CATALOG.filter((item) => item.kind === "agent")
+      .map((item) => item.id)
+      .filter((id) => !readme.includes(`\`${id}\``));
+    expect(ausentes).toEqual([]);
+  });
+
   it("ids são únicos", () => {
     const ids = CATALOG.map((item) => item.id);
     expect(new Set(ids).size).toBe(ids.length);

@@ -76,7 +76,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 **55 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
-<summary><b>🧠 Agentes da squad (12)</b> — especialistas por domínio</summary>
+<summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
 
 | id | Domínio |
 |---|---|
@@ -92,6 +92,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 | `agent:data` | Data, BI, ETL, dashboards |
 | `agent:pm` | Planejamento, estimativas, documentação |
 | `agent:lead` | Coordenação multi-domínio; orquestra os demais |
+| `agent:agent-builder` | **Cria outros agentes** seguindo esta mesma arquitetura |
 
 Cada agente tem um **slash command** correspondente (`command:backend` → `/backend`), que declara
 dependência do agente — marcar o command puxa o agente junto.
