@@ -37,9 +37,14 @@ function entryFor(itemId: string, artifacts: StateEntry["artifacts"], dir: strin
 }
 
 describe("catálogo de agents e commands", () => {
-  it("tem os 12 membros da squad em cada kind", () => {
-    expect(CATALOG.filter((item) => item.kind === "agent")).toHaveLength(12);
-    expect(CATALOG.filter((item) => item.kind === "command")).toHaveLength(12);
+  // Checa o pareamento em vez de um número fixo: o que importa é que todo agent
+  // tenha seu command e vice-versa. Fixar a contagem só obriga a editar o teste
+  // toda vez que um agente novo entra, sem provar nada a mais.
+  it("todo agent tem command e todo command tem agent", () => {
+    const agents = CATALOG.filter((item) => item.kind === "agent").map((i) => i.id.split(":")[1]);
+    const commands = CATALOG.filter((item) => item.kind === "command").map((i) => i.id.split(":")[1]);
+    expect(agents.length).toBeGreaterThanOrEqual(12);
+    expect([...agents].sort()).toEqual([...commands].sort());
   });
 
   it("todo command declara dependência do agent correspondente", () => {
