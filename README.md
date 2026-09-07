@@ -1,60 +1,276 @@
-# Setup Definitivo
+<div align="center">
 
-CLI interativa para configurar um ambiente de IA completo — **MCPs, skills, ferramentas e configuração** — em **qualquer harness** (Claude, Cursor, Codex, Gemini CLI, opencode, OmniRoute…), perguntando no terminal o que você quer adicionar.
+# ⚙️ Setup Definitivo
 
-Duas formas de usar — escolha a que preferir.
+**Um comando. Todo o teu ambiente de IA configurado — em qualquer harness.**
 
-## 1. Deixe sua IA configurar
+Agentes, slash commands, MCPs, plugins, skills e configuração,
+instalados de forma **reprodutível, reversível e auditável**.
+
+[![Node](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tests](https://img.shields.io/badge/testes-157%20passing-brightgreen)](#-qualidade)
+[![Itens](https://img.shields.io/badge/cat%C3%A1logo-53%20itens-blue)](#-cat%C3%A1logo)
+[![Harnesses](https://img.shields.io/badge/harnesses-Claude%20%C2%B7%20Cursor%20%C2%B7%20Codex-purple)](#-harnesses)
+[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+
+</div>
+
+---
+
+## 🌊 O problema
+
+Você monta um ambiente de IA bom — agentes especializados, MCPs, skills, permissões — e aí:
+
+- troca de máquina e perde tudo
+- quer usar no Cursor e no Codex, mas cada um guarda config num formato diferente
+- alguém do time pede "como você configurou isso?" e a resposta é meia hora de instrução
+- tenta desfazer e não sabe o que era seu e o que a ferramenta criou
+
+**Setup Definitivo** resolve isso: um catálogo declarativo do teu ambiente + duas formas de aplicá-lo.
+
+---
+
+## 🚀 Início rápido
+
+### Caminho A — deixe sua IA configurar
 
 Aponte seu agente (Claude Code, Codex, Cursor, Gemini CLI, opencode…) para o repositório:
 
 > *"Leia o SETUP.md deste repositório e configure meu ambiente."*
 
-O [`SETUP.md`](SETUP.md) instrui o agente a detectar o que existe na máquina, propor um plano,
-esperar sua confirmação e aplicar — com as mesmas proteções da CLI. Funciona inclusive em
-harness que ainda não tem adapter, porque quem executa é o próprio agente.
+O [`SETUP.md`](SETUP.md) instrui o agente a detectar o ambiente, propor um plano, **esperar sua
+confirmação** e aplicar — com as mesmas regras de segurança da CLI. Funciona até em harness que
+ainda não tem adapter, porque quem executa é o próprio agente.
 
-## 2. Use a CLI
-
-Determinística, com `--dry-run`, backup automático e `remove` conservador:
+### Caminho B — use a CLI
 
 ```bash
-npx github:Mystic0112/Setup-Definitivo init --dry-run   # mostra o plano, não escreve
-npx github:Mystic0112/Setup-Definitivo init             # wizard interativo
-npx github:Mystic0112/Setup-Definitivo doctor           # diagnóstico do ambiente
-npx github:Mystic0112/Setup-Definitivo remove <id>      # remove o que instalou
+# vê o plano, sem escrever nada
+npx github:Mystic0112/Setup-Definitivo init --dry-run
+
+# wizard interativo
+npx github:Mystic0112/Setup-Definitivo init
 ```
 
-Desenvolvimento local:
+Nada de publicação no npm: `prepare` compila na instalação, então o `npx` do GitHub já funciona.
+
+---
+
+## 🤖 Comandos
+
+| Comando | O que faz |
+|---|---|
+| `init` | Wizard interativo: harness → papéis → alvo → itens → preview → aplica |
+| `add <id...>` | Instala itens pelo id, sem wizard; resolve dependências |
+| `list` | Lista o catálogo inteiro por categoria |
+| `doctor` | Diagnostica binários, harnesses detectados e catálogo |
+| `update` | Reaplica o que está no manifesto usando o catálogo atual |
+| `remove <id...>` | Desfaz o que instalou — **recusando** o que você editou |
+
+Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
+
+---
+
+## 📦 Catálogo
+
+**53 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+
+<details open>
+<summary><b>🧠 Agentes da squad (12)</b> — especialistas por domínio</summary>
+
+| id | Domínio |
+|---|---|
+| `agent:backend` | PHP/Laravel: APIs, refactor, debugging |
+| `agent:frontend` | React/Vue/CSS, UI/UX, acessibilidade |
+| `agent:database` | Modelagem, queries, tuning, migrations |
+| `agent:qa` | Testes, code review, SOLID, Clean Code |
+| `agent:security` | OWASP, análise de vulnerabilidades, hardening |
+| `agent:devops` | Docker, CI/CD, deploy, monitoramento |
+| `agent:mobile` | React Native e Flutter |
+| `agent:scripting` | Python e Node: scripts, APIs, CLIs |
+| `agent:architect` | Arquitetura de software, DDD, ADRs |
+| `agent:data` | Data, BI, ETL, dashboards |
+| `agent:pm` | Planejamento, estimativas, documentação |
+| `agent:lead` | Coordenação multi-domínio; orquestra os demais |
+
+Cada agente tem um **slash command** correspondente (`command:backend` → `/backend`), que declara
+dependência do agente — marcar o command puxa o agente junto.
+
+</details>
+
+<details>
+<summary><b>🔌 MCPs (2) e Plugins (3)</b></summary>
+
+| id | O que dá |
+|---|---|
+| `mcp:notebooklm` 🔑 | Notebooks, fontes, geração de áudio/vídeo/slides |
+| `mcp:desktop-commander` | Terminal e arquivos |
+| `plugin:caveman` | Respostas compactas, sem perder substância |
+| `plugin:ponytail` | Força a solução mais simples que funciona |
+| `plugin:taste-skill` | Design frontend: brutalist, minimalist, redesign, stitch |
+
+Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribuído aqui.
+
+</details>
+
+<details>
+<summary><b>📚 Skills (19)</b> — conhecimento carregado sob demanda</summary>
+
+**Referência técnica** (os agentes carregam quando a tarefa pede):
+`php-laravel-ref` · `react-ref` · `frontend-ref` · `db-engines-ref` · `owasp-laravel-ref` ·
+`devops-ref` · `arch-ddd-ref` · `pm-ref` · `data-bi-ref` · `mobile-ref` · `python-node-ref` ·
+`api-docs-ref`
+
+**Produtividade**:
+`codex-code` · `defuddle` · `notebooklm` · `obsidian-cli` · `json-canvas` · `skill-builder`
+
+**Pentest**: `strix-playbooks` — 63 playbooks por vulnerabilidade, framework, cloud e protocolo.
+Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
+[atribuição](assets/playbooks/ATTRIBUTION.md)). O `agent:security` depende deles.
+
+</details>
+
+<details>
+<summary><b>🛠️ Ferramentas (3) e Configuração (2)</b></summary>
+
+| id | O que faz |
+|---|---|
+| `tool:graphify` | Motor de grafo de conhecimento: código/docs → grafo consultável |
+| `tool:impeccable` | Design/UX, detecção de anti-padrões de UI |
+| `tool:21st` 🔑 | Roda o instalador oficial do 21st (componentes de UI) |
+| `config:base-instructions` | Bloco base no CLAUDE.md / AGENTS.md / .cursorrules |
+| `config:hooks-basicos` | Permissões explícitas de comandos básicos |
+
+🔑 = precisa de credencial. Cada um tem guia em [`docs/mcp/`](docs/mcp) — a CLI **nunca** pede,
+lê ou grava a tua credencial.
+
+</details>
+
+---
+
+## 🎯 Harnesses
+
+O catálogo descreve **o que** instalar. Um adapter por harness sabe **como** aplicar ali.
+
+```
+              Catálogo declarativo (capacidade abstrata)
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+   AdapterClaude         AdapterCursor        AdapterCodex
+   ~/.claude/            ~/.cursor/           ~/.codex/
+   claude mcp add        mcp.json             config.toml
+   agents/ commands/     .cursorrules         AGENTS.md
+   skills/               (degrada)            (degrada)
+```
+
+| Capacidade | Claude | Cursor | Codex |
+|---|---|---|---|
+| Registrar MCP | ✅ `claude mcp add` | ✅ `mcp.json` | ✅ `config.toml` |
+| Agents / commands | ✅ nativo | ⚠️ vira instrução | ⚠️ vira instrução |
+| Skills | ✅ nativo | ⚠️ vira instrução | ⚠️ vira instrução |
+| Arquivo de instrução | `CLAUDE.md` | `.cursorrules` / `rules/` | `AGENTS.md` |
+| settings.json | ✅ | — | — |
+
+⚠️ = **degradação elegante**: onde o conceito não existe, o conteúdo entra como bloco marcado no
+arquivo de instrução, individualmente removível.
+
+Gemini CLI, opencode e OmniRoute aparecem no wizard marcados como *adapter não implementado* —
+para eles, use o **Caminho A** (sua IA lê o `SETUP.md`).
+
+---
+
+## 🔗 Pipeline multi-harness
+
+Usa mais de uma IA? O wizard pergunta o papel de cada uma:
+
+```
+Gemini planeja  →  Codex coda  →  Claude revisa
+```
+
+A partir disso ele gera, na hora, uma **instrução de papel** em cada harness (no formato dele) e um
+`HANDOFF.md` compartilhado com o protocolo de quem passa o bastão pra quem.
+
+> **Escopo honesto:** harnesses são CLIs separadas, sem runtime compartilhado. O setup gera o
+> *papel + protocolo* — cada uma sabe o que faz e como entregar. Handoff 100% automático (uma
+> chamando a outra) exigiria um router; não está aqui.
+
+---
+
+## 🛡️ Segurança
+
+A CLI escreve em arquivos que guardam credenciais. Estas regras não são negociáveis:
+
+| Regra | Por quê |
+|---|---|
+| **Backup antes de escrever** | 5 mais recentes por arquivo, em `~/.setup-definitivo/backups` (0700), fora do teu repo git |
+| **Merge, nunca substituir** | Registrar um MCP existente preserva o `env` — é onde ficam os tokens |
+| **`config.toml` é append-only** | Nunca reescrito: tem comentários e API keys. Valida o TOML depois e reverte se corromper |
+| **`0600` na criação** | Sem janela em 0644 num arquivo com segredo |
+| **Escrita atômica** | tmp + rename: Ctrl-C não deixa config pela metade |
+| **Confinado às raízes** | `remove` recusa qualquer caminho fora de `~/.claude|.codex|.cursor` ou do projeto |
+| **Na dúvida, não apaga** | Skill editada, MCP que ganhou `env`, seção com sub-tabela → recusa e reporta |
+| **Nunca toca credencial** | Só aponta o guia; você coloca a key no ambiente |
+| **`--dry-run` real** | Mostra tudo, escreve nada |
+
+Cada uma dessas veio de um defeito **reproduzido** em auditoria — não de teoria. O histórico está
+em [`docs/PLAN.md`](docs/PLAN.md).
+
+---
+
+## ✅ Qualidade
 
 ```bash
 npm install
-npm run dev -- init --dry-run
-npm run dev -- list
+npm test          # 157 testes
+npm run lint      # tsc strict, sem erros
 ```
 
-> Status: adapters de Claude, Cursor e Codex funcionando; `remove` implementado.
-> Roadmap em [docs/PLAN.md](docs/PLAN.md).
+Testes de código destrutivo são validados por **mutation testing**: cada trava é desligada de
+propósito para confirmar que algum teste morre. Trava sem teste que grita é trava que some no
+próximo refactor.
 
-## Como funciona
+---
 
-Um **catálogo declarativo** (`src/registry/items.ts`) descreve *o que* instalar (uma capacidade abstrata). Uma camada de **adapters** por harness sabe *como* aplicar em cada CLI. Adicionar suporte novo = uma entrada no catálogo; adicionar um harness novo = um adapter, sem tocar no catálogo.
+## 📁 Estrutura
 
-Categorias:
+```
+src/
+├─ registry/      catálogo declarativo (items.ts) + schema zod
+├─ adapters/      um por harness; base.ts compartilha o comum
+├─ installers/    mcp · skill · markdownFile · plugin · config · tool · remove
+├─ core/          targets (caminhos) · state (manifesto) · fsx (backup, escrita atômica)
+├─ commands/      doctor · remove · update · add
+└─ wizard.ts      o fluxo do init
+assets/           agents · commands · skills · playbooks
+docs/             PLAN.md (roadmap e decisões) · mcp/ (guias de credencial)
+SETUP.md          instruções para a IA que for configurar o ambiente
+```
 
-- **MCPs** — registra servidores MCP (ClickUp, NotebookLM, 21st.dev Magic, …). Os que exigem credencial trazem um guia em [`docs/mcp/`](docs/mcp).
-- **Skills** — squad de agentes (backend, frontend, database, security, …) e skills de produtividade (graphify, caveman, ponytail). Skills de design (impeccable, motion, design-taste) vêm por **URL do GitHub**, sempre atualizadas.
-- **Tools** — dependências externas (ex.: `graphify` via `uv`).
-- **Config** — `settings.json`, hooks e arquivo de instruções (CLAUDE.md / AGENTS.md / .cursorrules) por harness.
+Adicionar um item novo = **uma entrada no catálogo**, não código novo.
 
-## Segurança
+---
 
-Idempotente · backup antes de escrever · merge nunca overwrite · `--dry-run` real · reversível · **nunca grava segredo no repo** (só orienta via guia).
+## 🔄 Este repositório é vivo
 
-## Roadmap
+**Sempre atualizado com novidades.** À medida que o ecossistema muda — MCPs novos, harnesses novos,
+skills melhores, plugins que valem a pena — o catálogo acompanha.
 
-Ver [docs/PLAN.md](docs/PLAN.md). Resumo: MVP (Claude) → config+tools+git → multi-harness (Cursor/Codex) → robustez+npm → mais harnesses.
+O que está no radar:
 
-## Licença
+- adapters de **Gemini CLI**, **opencode** e **OmniRoute**
+- mais MCPs e plugins conforme aparecem
+- perfis prontos (`--profile completo | design | mínimo`)
+- preview por harness no wizard
 
-MIT
+Sugestões, issues e PRs são bem-vindos. Se você usa um MCP, plugin ou skill que merece entrar no
+catálogo, abra uma issue — o catálogo é declarativo justamente para ser fácil de estender.
+
+---
+
+<div align="center">
+
+**MIT** · feito para quem cansou de reconfigurar o ambiente do zero
+
+</div>

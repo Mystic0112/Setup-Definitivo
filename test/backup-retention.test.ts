@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { backupFile, backupsDir } from "../src/core/fsx.js";
 
@@ -13,11 +14,20 @@ async function withTempDir(run: (dir: string) => Promise<void>): Promise<void> {
   }
 }
 
-/** Backups deste arquivo no dir central. */
+/**
+ * Backups deste arquivo no dir central.
+ *
+ * Filtra pelo prefixo COMPLETO (basename + hash do caminho absoluto), igual ao
+ * que backupFile gera. Só o basename não serve: o home de backup é compartilhado
+ * entre os testes e vários criam `config.toml`/`settings.json` em tempdirs
+ * diferentes — o filtro largo somaria os backups alheios.
+ */
 async function backupsDe(file: string): Promise<string[]> {
   const dir = backupsDir();
+  const hash = createHash("sha256").update(path.resolve(file)).digest("hex").slice(0, 8);
+  const prefix = `${path.basename(file)}.${hash}.bak-`;
   const nomes = await fs.readdir(dir).catch(() => [] as string[]);
-  return nomes.filter((n) => n.startsWith(`${path.basename(file)}.`)).sort();
+  return nomes.filter((n) => n.startsWith(prefix)).sort();
 }
 
 // nezuko (MEDIUM): sem poda, uma chave rotacionada continua viva para sempre nos
