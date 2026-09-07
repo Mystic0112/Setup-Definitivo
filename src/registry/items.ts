@@ -88,7 +88,7 @@ export const CATALOG = CatalogSchema.parse([
 
   // ── Ferramentas ─────────────────────────────────────────────────────────
   // O próprio graphify instala a skill dele em 19 plataformas — melhor que copiar.
-  { id: "tool:graphify", kind: "tool", name: "graphify (grafo de conhecimento)", description: "Motor + skill: transforma código/docs em grafo consultável.", targets: ["global"], needsSecret: false, tool: { cmd: "uv", args: ["tool", "install", "graphifyy"] } },
+  { id: "tool:graphify", kind: "tool", name: "graphify (grafo de conhecimento)", description: "Motor + skill: transforma código/docs em grafo consultável. Com --obsidian exporta um vault; as skills obsidian-* ajudam a navegar o resultado.", targets: ["global"], needsSecret: false, tool: { cmd: "uv", args: ["tool", "install", "graphifyy"] } },
 
   // ── Config ────────────────────────────────────────────────────────────────
   {
