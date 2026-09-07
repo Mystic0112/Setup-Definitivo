@@ -9,7 +9,7 @@ instalados de forma **reprodutível, reversível e auditável**.
 
 [![Node](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/testes-157%20passing-brightgreen)](#-qualidade)
+![Tests](https://img.shields.io/badge/testes-157%20passing-brightgreen)
 [![Itens](https://img.shields.io/badge/cat%C3%A1logo-53%20itens-blue)](#-cat%C3%A1logo)
 [![Harnesses](https://img.shields.io/badge/harnesses-Claude%20%C2%B7%20Cursor%20%C2%B7%20Codex-purple)](#-harnesses)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
@@ -195,60 +195,6 @@ A partir disso ele gera, na hora, uma **instrução de papel** em cada harness (
 > **Escopo honesto:** harnesses são CLIs separadas, sem runtime compartilhado. O setup gera o
 > *papel + protocolo* — cada uma sabe o que faz e como entregar. Handoff 100% automático (uma
 > chamando a outra) exigiria um router; não está aqui.
-
----
-
-## 🛡️ Segurança
-
-A CLI escreve em arquivos que guardam credenciais. Estas regras não são negociáveis:
-
-| Regra | Por quê |
-|---|---|
-| **Backup antes de escrever** | 5 mais recentes por arquivo, em `~/.setup-definitivo/backups` (0700), fora do teu repo git |
-| **Merge, nunca substituir** | Registrar um MCP existente preserva o `env` — é onde ficam os tokens |
-| **`config.toml` é append-only** | Nunca reescrito: tem comentários e API keys. Valida o TOML depois e reverte se corromper |
-| **`0600` na criação** | Sem janela em 0644 num arquivo com segredo |
-| **Escrita atômica** | tmp + rename: Ctrl-C não deixa config pela metade |
-| **Confinado às raízes** | `remove` recusa qualquer caminho fora de `~/.claude|.codex|.cursor` ou do projeto |
-| **Na dúvida, não apaga** | Skill editada, MCP que ganhou `env`, seção com sub-tabela → recusa e reporta |
-| **Nunca toca credencial** | Só aponta o guia; você coloca a key no ambiente |
-| **`--dry-run` real** | Mostra tudo, escreve nada |
-
-Cada uma dessas veio de um defeito **reproduzido** em auditoria — não de teoria. O histórico está
-em [`docs/PLAN.md`](docs/PLAN.md).
-
----
-
-## ✅ Qualidade
-
-```bash
-npm install
-npm test          # 157 testes
-npm run lint      # tsc strict, sem erros
-```
-
-Testes de código destrutivo são validados por **mutation testing**: cada trava é desligada de
-propósito para confirmar que algum teste morre. Trava sem teste que grita é trava que some no
-próximo refactor.
-
----
-
-## 📁 Estrutura
-
-```
-src/
-├─ registry/      catálogo declarativo (items.ts) + schema zod
-├─ adapters/      um por harness; base.ts compartilha o comum
-├─ installers/    mcp · skill · markdownFile · plugin · config · tool · remove
-├─ core/          targets (caminhos) · state (manifesto) · fsx (backup, escrita atômica)
-├─ commands/      doctor · remove · update · add
-└─ wizard.ts      o fluxo do init
-assets/           agents · commands · skills · playbooks
-docs/             PLAN.md (roadmap e decisões) · mcp/ (guias de credencial)
-SETUP.md          instruções para a IA que for configurar o ambiente
-```
-
-Adicionar um item novo = **uma entrada no catálogo**, não código novo.
 
 ---
 
