@@ -39,6 +39,15 @@ describe("integridade do catálogo", () => {
     }
   });
 
+  // O README já ficou dizendo 53 enquanto o catálogo tinha 55. Número em
+  // documentação deriva em silêncio; aqui ele falha alto.
+  it("a contagem de itens no README bate com o catálogo", async () => {
+    const readme = await fs.readFile(path.join(pkgRoot, "README.md"), "utf-8");
+    const declarado = readme.match(/\*\*(\d+) itens\*\*/)?.[1];
+    expect(declarado, "README precisa declarar '**N itens**'").toBeTruthy();
+    expect(Number(declarado)).toBe(CATALOG.length);
+  });
+
   it("ids são únicos", () => {
     const ids = CATALOG.map((item) => item.id);
     expect(new Set(ids).size).toBe(ids.length);

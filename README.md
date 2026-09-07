@@ -9,8 +9,7 @@ instalados de forma **reprodutível, reversível e auditável**.
 
 [![Node](https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-![Tests](https://img.shields.io/badge/testes-157%20passing-brightgreen)
-[![Itens](https://img.shields.io/badge/cat%C3%A1logo-53%20itens-blue)](#-cat%C3%A1logo)
+[![Catálogo](https://img.shields.io/badge/cat%C3%A1logo-declarativo-blue)](#-cat%C3%A1logo)
 [![Harnesses](https://img.shields.io/badge/harnesses-Claude%20%C2%B7%20Cursor%20%C2%B7%20Codex-purple)](#-harnesses)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
@@ -74,7 +73,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**53 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**55 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
 <summary><b>🧠 Agentes da squad (12)</b> — especialistas por domínio</summary>
