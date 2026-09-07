@@ -74,6 +74,8 @@ export const CATALOG = CatalogSchema.parse([
   { id: "skill:notebooklm", kind: "skill", name: "notebooklm", description: "API completa do Google NotebookLM: fontes, áudio, vídeo, slides.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/notebooklm" }, needsSecret: false },
   { id: "skill:obsidian-cli", kind: "skill", name: "obsidian-cli", description: "Lê, cria e busca notas em vaults do Obsidian.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-cli" }, needsSecret: false },
   { id: "skill:json-canvas", kind: "skill", name: "json-canvas", description: "Cria e edita arquivos .canvas do Obsidian: mapas mentais, fluxogramas.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/json-canvas" }, needsSecret: false },
+  { id: "skill:obsidian-markdown", kind: "skill", name: "obsidian-markdown", description: "Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties e frontmatter.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-markdown" }, needsSecret: false },
+  { id: "skill:obsidian-bases", kind: "skill", name: "obsidian-bases", description: "Obsidian Bases (.base): views, filtros, fórmulas e agregações sobre notas.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-bases" }, needsSecret: false },
   { id: "skill:skill-builder", kind: "skill", name: "skill-builder", description: "Cria novas skills com frontmatter e estrutura corretos.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/skill-builder" }, needsSecret: false },
 
   // ── Playbooks de pentest (Strix, Apache-2.0 — ver assets/playbooks/ATTRIBUTION.md)

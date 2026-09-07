@@ -73,7 +73,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**55 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**57 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
 <summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
@@ -115,7 +115,7 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 </details>
 
 <details>
-<summary><b>📚 Skills (19)</b> — conhecimento carregado sob demanda</summary>
+<summary><b>📚 Skills (21)</b> — conhecimento carregado sob demanda</summary>
 
 **Referência técnica** (os agentes carregam quando a tarefa pede):
 `php-laravel-ref` · `react-ref` · `frontend-ref` · `db-engines-ref` · `owasp-laravel-ref` ·
@@ -123,7 +123,10 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 `api-docs-ref`
 
 **Produtividade**:
-`codex-code` · `defuddle` · `notebooklm` · `obsidian-cli` · `json-canvas` · `skill-builder`
+`codex-code` · `defuddle` · `notebooklm` · `skill-builder`
+
+**Obsidian / grafo de conhecimento**:
+`obsidian-cli` · `obsidian-markdown` · `obsidian-bases` · `json-canvas`
 
 **Pentest**: `strix-playbooks` — 63 playbooks por vulnerabilidade, framework, cloud e protocolo.
 Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
