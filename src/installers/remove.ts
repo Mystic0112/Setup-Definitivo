@@ -35,6 +35,25 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Escreve `updated` só se o arquivo ainda estiver exatamente como estava no
+ * preflight. Sem isso, uma edição feita entre o check e a escrita seria
+ * sobrescrita por conteúdo obsoleto (TOCTOU — nezuko, LOW). Fail-closed:
+ * se a base mudou, lança e não escreve.
+ */
+async function writeIfUnchanged(
+  file: string,
+  expected: string,
+  updated: string
+): Promise<void> {
+  const atual = await fs.readFile(file, "utf-8");
+  if (atual !== expected) {
+    throw new Error(`${file} mudou durante a remoção — nada foi escrito`);
+  }
+  await backupFile(file);
+  await writeFileEnsured(file, updated);
+}
+
 async function preflightDir(artifact: Extract<Artifact, { type: "dir" }>): Promise<PreflightResult> {
   if (!(await exists(artifact.path))) return { alreadyAbsent: `diretório já ausente: ${artifact.path}` };
   const stat = await fs.lstat(artifact.path);
@@ -84,10 +103,7 @@ async function preflightBlock(
   return {
     action: {
       message: `remover bloco "${artifact.blockId}" -> ${artifact.path}`,
-      run: async () => {
-        await backupFile(artifact.path);
-        await writeFileEnsured(artifact.path, updated);
-      },
+      run: () => writeIfUnchanged(artifact.path, current, updated),
     },
   };
 }
@@ -122,10 +138,7 @@ async function preflightCursorMcp(
   return {
     action: {
       message: `remover MCP ${artifact.name} -> ${artifact.path}`,
-      run: async () => {
-        await backupFile(artifact.path);
-        await writeFileEnsured(artifact.path, updated);
-      },
+      run: () => writeIfUnchanged(artifact.path, currentText, updated),
     },
   };
 }
@@ -185,6 +198,10 @@ async function preflightCodexMcp(
     action: {
       message: `remover seção TOML ${artifact.name} -> ${artifact.path}`,
       run: async () => {
+        const atual = await fs.readFile(artifact.path, "utf-8");
+        if (atual !== current) {
+          throw new Error(`${artifact.path} mudou durante a remoção — nada foi escrito`);
+        }
         const backup = await backupFile(artifact.path);
         await writeFileEnsured(artifact.path, updated);
         try {
