@@ -65,6 +65,16 @@ export const ItemSchema = z.object({
     .object({
       marketplace: z.string(),
       name: z.string(),
+      /**
+       * Nível de intensidade sugerido para plugins que têm um.
+       *
+       * Plugins como ponytail e caveman vêm em `full` de fábrica, e `full`
+       * IMPÕE comportamento (o ponytail força a escada de decisão: stdlib antes
+       * de dependência, one-liner antes de 50 linhas). Quem instala um setup não
+       * pediu para mudar como o agente decide arquitetura. O mínimo sugere sem
+       * impor — quem quiser mais sobe depois, conscientemente.
+       */
+      defaultLevel: z.string().optional(),
     })
     .optional(),
   /** Payload de config: patch de settings.json e/ou bloco de instrução. */

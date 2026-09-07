@@ -81,8 +81,8 @@ export const CATALOG = CatalogSchema.parse([
   { id: "skill:strix-playbooks", kind: "skill", name: "Playbooks de pentest (Strix)", description: "63 playbooks por vulnerabilidade, framework, cloud e protocolo. Usados pelo agent:security.", targets: ["global"], source: { type: "local", path: "assets/playbooks" }, needsSecret: false },
 
   // ── Plugins de marketplace (o harness instala; nada é redistribuído) ────
-  { id: "plugin:caveman", kind: "plugin", name: "caveman (estilo terso)", description: "Respostas compactas, sem perder substância técnica.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "JuliusBrussee/caveman", name: "caveman" } },
-  { id: "plugin:ponytail", kind: "plugin", name: "ponytail (anti over-engineering)", description: "Força a solução mais simples que funciona.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "DietrichGebert/ponytail", name: "ponytail" } },
+  { id: "plugin:caveman", kind: "plugin", name: "caveman (estilo terso)", description: "Respostas compactas, sem perder substância técnica. Instalado em 'lite': sem enrolação, mantendo frases completas.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "JuliusBrussee/caveman", name: "caveman", defaultLevel: "lite" } },
+  { id: "plugin:ponytail", kind: "plugin", name: "ponytail (anti over-engineering)", description: "Sugere a solução mais simples que funciona. Instalado em 'lite': nomeia a alternativa mais enxuta e deixa você escolher.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "DietrichGebert/ponytail", name: "ponytail", defaultLevel: "lite" } },
 
   // ── Ferramentas ─────────────────────────────────────────────────────────
   // O próprio graphify instala a skill dele em 19 plataformas — melhor que copiar.
