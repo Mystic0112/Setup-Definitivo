@@ -31,13 +31,32 @@ export function backupsDir(): string {
  * usuário — candidato a `git add .` e vazamento no histórico (nezuko, MEDIUM).
  * O nome achata o caminho de origem + hash curto para evitar colisão.
  */
+/**
+ * Quantos backups guardar por arquivo de origem.
+ *
+ * Backup de config carrega credencial: sem poda, uma chave rotacionada continua
+ * viva para sempre nos `.bak` antigos e a revogação por edição vira ilusória
+ * (nezuko, MEDIUM). 5 dá margem para desfazer sem virar arquivo morto.
+ */
+const BACKUP_RETENTION = 5;
+
+/** Apaga os backups mais antigos deste arquivo, mantendo os N mais recentes. */
+async function pruneBackups(dir: string, prefix: string): Promise<void> {
+  const nomes = (await fs.readdir(dir)).filter((n) => n.startsWith(prefix));
+  if (nomes.length <= BACKUP_RETENTION) return;
+  // O nome carrega o timestamp ISO, então ordem lexicográfica = ordem cronológica.
+  const antigos = nomes.sort().slice(0, nomes.length - BACKUP_RETENTION);
+  await Promise.all(antigos.map((n) => fs.rm(path.join(dir, n), { force: true })));
+}
+
 export async function backupFile(file: string): Promise<string | null> {
   if (!(await exists(file))) return null;
   const dir = backupsDir();
   await fs.mkdir(dir, { recursive: true, mode: 0o700 });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const hash = createHash("sha256").update(path.resolve(file)).digest("hex").slice(0, 8);
-  const base = path.join(dir, `${path.basename(file)}.${hash}.bak-${stamp}`);
+  const prefix = `${path.basename(file)}.${hash}.bak-`;
+  const base = path.join(dir, `${prefix}${stamp}`);
   let bak = base;
   let suffix = 1;
   while (await exists(bak)) bak = `${base}-${suffix++}`;
@@ -45,6 +64,7 @@ export async function backupFile(file: string): Promise<string | null> {
   // que pode ter API key. Buffer (sem encoding) preserva binário; "wx" evita corrida.
   const data = await fs.readFile(file);
   await fs.writeFile(bak, data, { mode: 0o600, flag: "wx" });
+  await pruneBackups(dir, prefix);
   return bak;
 }
 
