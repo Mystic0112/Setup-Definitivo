@@ -43,6 +43,10 @@ export const CATALOG = CatalogSchema.parse([
   { id: "plugin:taste-skill", kind: "plugin", name: "Taste Skill (design)", description: "Skills de taste para frontend: brutalist, minimalist, soft, redesign, stitch.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "leonxlnx/taste-skill", name: "taste-skill" } },
   // impeccable: verificado no npm (v4.0.3, Apache-2.0, github.com/pbakaus/impeccable).
   // O instalador dele é o próprio pacote, então entra como tool.
+  // Motion AI Kit (motion-ai, MIT, github.com/motiondivision/ai-kit): instalador
+  // oficial que registra as skills do Motion e o MCP dele nos agentes. Busca na
+  // documentação é gratuita; MotionScore e geração de CSS exigem Motion+.
+  { id: "tool:motion", kind: "tool", name: "Motion AI Kit (animação)", description: "Instala as skills do Motion e o MCP de documentação/animação nos agentes. Busca na doc é gratuita; recursos avançados pedem Motion+.", targets: ["global"], needsSecret: false, tool: { cmd: "npx", args: ["-y", "motion-ai@latest"] } },
   { id: "tool:impeccable", kind: "tool", name: "Impeccable (design/UX)", description: "Skills e comandos de design para agentes; detecção de anti-padrões de UI.", targets: ["global"], needsSecret: false, tool: { cmd: "npx", args: ["-y", "impeccable@latest", "init"] } },
 
   // ── MCPs ─────────────────────────────────────────────────────────────────

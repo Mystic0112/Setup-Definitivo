@@ -73,7 +73,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**58 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**59 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
 <summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
@@ -136,10 +136,11 @@ Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
 </details>
 
 <details>
-<summary><b>🛠️ Ferramentas (3) e Configuração (2)</b></summary>
+<summary><b>🛠️ Ferramentas (4) e Configuração (2)</b></summary>
 
 | id | O que faz |
 |---|---|
+| `tool:motion` | Motion AI Kit: skills e MCP de animação nos agentes |
 | `tool:graphify` | Motor de grafo de conhecimento: código/docs → grafo consultável |
 | `tool:impeccable` | Design/UX, detecção de anti-padrões de UI |
 | `tool:21st` 🔑 | Roda o instalador oficial do 21st (componentes de UI) |
