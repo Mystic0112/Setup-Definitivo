@@ -73,7 +73,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**57 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**58 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
 <summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
@@ -100,7 +100,7 @@ dependência do agente — marcar o command puxa o agente junto.
 </details>
 
 <details>
-<summary><b>🔌 MCPs (2) e Plugins (3)</b></summary>
+<summary><b>🔌 MCPs (2) e Plugins (4)</b></summary>
 
 | id | O que dá |
 |---|---|
@@ -109,6 +109,7 @@ dependência do agente — marcar o command puxa o agente junto.
 | `plugin:caveman` | Respostas compactas, sem perder substância |
 | `plugin:ponytail` | Força a solução mais simples que funciona |
 | `plugin:taste-skill` | Design frontend: brutalist, minimalist, redesign, stitch |
+| `plugin:codex` | Delega tarefa ao Codex e traz o resultado para revisão |
 
 Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribuído aqui.
 

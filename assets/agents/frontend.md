@@ -98,6 +98,16 @@ Landing é o tipo de tela que mais tenta puxar artilharia pesada sem precisar. S
 
 **Parallax não é caso de WebGPU.** É `motion`/CSS: roda em todo lugar, custa quase nada.
 
+Onde achar cada uma (todas entram no `package.json` do projeto, não no ambiente):
+
+| Precisa de | Pacote |
+|---|---|
+| Animação declarativa em React/Vue, gestos, scroll-linked | [`motion`](https://github.com/motiondivision/motion) (MIT) — sucessor do `framer-motion`, mesmo repo |
+| Componentes animados prontos para copiar (não é dependência) | [`motion-primitives`](https://github.com/ibelick/motion-primitives) (MIT) — CLI que adiciona o componente ao seu código |
+| Componente de UI gerado a partir de descrição | MCP **21st**, se disponível |
+
+Não existe MCP oficial do Motion: a integração é a biblioteca no projeto. Se precisar de componente animado pronto, o caminho é `motion-primitives` (ele copia o código para você, então você fica dono dele) ou o MCP do 21st.
+
 Antes de propor `vgpu` numa landing, diga ao usuário os três custos:
 
 1. **Suporte**: WebGPU não é universal (Safari e Firefox atrás do Chrome). Landing recebe visitante qualquer — exige fallback (imagem estática ou versão CSS), o que dobra o trabalho do hero.

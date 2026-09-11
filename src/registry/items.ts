@@ -85,6 +85,9 @@ export const CATALOG = CatalogSchema.parse([
   // ── Plugins de marketplace (o harness instala; nada é redistribuído) ────
   { id: "plugin:caveman", kind: "plugin", name: "caveman (estilo terso)", description: "Respostas compactas, sem perder substância técnica. Instalado em 'lite': sem enrolação, mantendo frases completas.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "JuliusBrussee/caveman", name: "caveman", defaultLevel: "lite" } },
   { id: "plugin:ponytail", kind: "plugin", name: "ponytail (anti over-engineering)", description: "Sugere a solução mais simples que funciona. Instalado em 'lite': nomeia a alternativa mais enxuta e deixa você escolher.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "DietrichGebert/ponytail", name: "ponytail", defaultLevel: "lite" } },
+  // Plugin oficial da OpenAI (openai/codex-plugin-cc, Apache-2.0): delega tarefa
+  // ao Codex e traz o resultado de volta para revisão dentro do Claude Code.
+  { id: "plugin:codex", kind: "plugin", name: "Codex (OpenAI)", description: "Usa o Codex a partir do Claude Code para revisar código ou delegar tarefas.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "openai/codex-plugin-cc", name: "codex" } },
 
   // ── Ferramentas ─────────────────────────────────────────────────────────
   // O próprio graphify instala a skill dele em 19 plataformas — melhor que copiar.
