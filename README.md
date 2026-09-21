@@ -131,6 +131,14 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 o CLI. Dirige **só Chromium**: navegadores base Firefox (Firefox, Zen, LibreWolf) abandonaram o
 CDP na versão 129 e não são alcançáveis.
 
+> **Aviso:** a SKILL.md do upstream documenta uma API à frente do pacote publicado no npm. No
+> `dev-browser@0.2.9` a flag `-e` não existe, a última expressão não é impressa (precisa de
+> `console.log`), o método é `page.snapshotForAI()` e não `page.snapshot()`, `page.click("ref/eN")`
+> é lido como seletor CSS (use `page.getByRef("eN")`) e `page.waitForLoad()` não existe (use
+> `page.waitForLoadState()`). Reportado em
+> [SawyerHood/dev-browser#142](https://github.com/SawyerHood/dev-browser/issues/142) — quando for
+> corrigido lá, chega aqui sozinho, porque a entrada aponta para `main`.
+
 **Obsidian / grafo de conhecimento**:
 `obsidian-cli` · `obsidian-markdown` · `obsidian-bases` · `json-canvas`
 
