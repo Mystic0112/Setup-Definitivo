@@ -81,6 +81,10 @@ export const CATALOG = CatalogSchema.parse([
   { id: "skill:obsidian-markdown", kind: "skill", name: "obsidian-markdown", description: "Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties e frontmatter.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-markdown" }, needsSecret: false },
   { id: "skill:obsidian-bases", kind: "skill", name: "obsidian-bases", description: "Obsidian Bases (.base): views, filtros, fórmulas e agregações sobre notas.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-bases" }, needsSecret: false },
   { id: "skill:skill-builder", kind: "skill", name: "skill-builder", description: "Cria novas skills com frontmatter e estrutura corretos.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/skill-builder" }, needsSecret: false },
+  // dev-browser: MIT, github.com/sawyerhood/dev-browser. Vem por git em vez de
+  // assets/ para acompanhar o upstream — o autor publica a SKILL.md no próprio
+  // repo. Depende do CLI (tool:dev-browser): a skill sozinha não faz nada.
+  { id: "skill:dev-browser", kind: "skill", name: "dev-browser", description: "Automação de navegador com páginas nomeadas persistentes: navega, preenche formulário, extrai dados e tira screenshot. Só Chromium — não dirige Firefox/Zen.", targets: ["global", "project"], requires: ["tool:dev-browser"], source: { type: "git", repo: "https://github.com/sawyerhood/dev-browser", ref: "main", subdir: "skills/dev-browser" }, needsSecret: false },
 
   // ── Playbooks de pentest (Strix, Apache-2.0 — ver assets/playbooks/ATTRIBUTION.md)
   // O agent:security depende deles: referencia os arquivos por caminho.
@@ -96,6 +100,12 @@ export const CATALOG = CatalogSchema.parse([
   // ── Ferramentas ─────────────────────────────────────────────────────────
   // O próprio graphify instala a skill dele em 19 plataformas — melhor que copiar.
   { id: "tool:graphify", kind: "tool", name: "graphify (grafo de conhecimento)", description: "Motor + skill: transforma código/docs em grafo consultável. Com --obsidian exporta um vault; as skills obsidian-* ajudam a navegar o resultado.", targets: ["global"], needsSecret: false, tool: { cmd: "uv", args: ["tool", "install", "graphifyy"] } },
+  // dev-browser (MIT, github.com/sawyerhood/dev-browser): o CLI que a
+  // skill:dev-browser dirige. Dois passos porque `dev-browser install` baixa o
+  // Chromium do Playwright (~280 MB) e NÃO roda no postinstall do npm — sem ele
+  // o primeiro uso morre com "Embedded daemon dependencies are missing".
+  // Plataformas: macOS e Linux glibc. Windows e Linux musl não são suportados.
+  { id: "tool:dev-browser", kind: "tool", name: "dev-browser (CLI de navegador)", description: "CLI que controla o Chromium por scripts. Baixa ~280 MB de navegador na instalação. Só macOS e Linux glibc.", targets: ["global"], needsSecret: false, tool: { cmd: "sh", args: ["-c", "npm install -g dev-browser && dev-browser install"] } },
 
   // ── Config ────────────────────────────────────────────────────────────────
   {

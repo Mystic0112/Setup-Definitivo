@@ -73,7 +73,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**59 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**61 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
 <summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
@@ -116,7 +116,7 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 </details>
 
 <details>
-<summary><b>📚 Skills (21)</b> — conhecimento carregado sob demanda</summary>
+<summary><b>📚 Skills (22)</b> — conhecimento carregado sob demanda</summary>
 
 **Referência técnica** (os agentes carregam quando a tarefa pede):
 `php-laravel-ref` · `react-ref` · `frontend-ref` · `db-engines-ref` · `owasp-laravel-ref` ·
@@ -124,7 +124,12 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 `api-docs-ref`
 
 **Produtividade**:
-`codex-code` · `defuddle` · `notebooklm` · `skill-builder`
+`codex-code` · `defuddle` · `notebooklm` · `skill-builder` · `dev-browser`
+
+`dev-browser` vem por git de [sawyerhood/dev-browser](https://github.com/sawyerhood/dev-browser)
+(MIT), não de `assets/` — assim acompanha o upstream. Depende do `tool:dev-browser`, que instala
+o CLI. Dirige **só Chromium**: navegadores base Firefox (Firefox, Zen, LibreWolf) abandonaram o
+CDP na versão 129 e não são alcançáveis.
 
 **Obsidian / grafo de conhecimento**:
 `obsidian-cli` · `obsidian-markdown` · `obsidian-bases` · `json-canvas`
@@ -136,7 +141,7 @@ Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
 </details>
 
 <details>
-<summary><b>🛠️ Ferramentas (4) e Configuração (2)</b></summary>
+<summary><b>🛠️ Ferramentas (5) e Configuração (2)</b></summary>
 
 | id | O que faz |
 |---|---|
@@ -144,6 +149,7 @@ Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
 | `tool:graphify` | Motor de grafo de conhecimento: código/docs → grafo consultável |
 | `tool:impeccable` | Design/UX, detecção de anti-padrões de UI |
 | `tool:21st` 🔑 | Roda o instalador oficial do 21st (componentes de UI) |
+| `tool:dev-browser` | CLI de automação de navegador (baixa ~280 MB de Chromium) |
 | `config:base-instructions` | Bloco base no CLAUDE.md / AGENTS.md / .cursorrules |
 | `config:hooks-basicos` | Permissões explícitas de comandos básicos |
 
