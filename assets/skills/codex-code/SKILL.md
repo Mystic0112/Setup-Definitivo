@@ -27,11 +27,24 @@ correção pro Codex, não edição sua. Duas exceções: usuário mandar você 
 | ETL / BI / SQL analítico / dashboard | `ryuk` |
 | Toca 3+ domínios | `light` |
 
-**Modelo** — nunca deixe implícito, sempre passe `-m`:
+**Modelo** — a família muda com o tempo, então **confira antes de fixar um nome**:
 
-- `gpt-5.6-terra` — tarefa **simples**: CRUD, script isolado, ajuste localizado,
+```bash
+grep -E '^model\b' ~/.codex/config.toml     # o padrão da máquina
+```
+
+Use o padrão da configuração, salvo motivo declarado. Passar `-m` com um nome
+escrito aqui atrás sobrescreve a escolha do dono da máquina em silêncio — foi o
+que aconteceu em 25/09/2026: o skill mandava `gpt-5.6-sol`, a configuração já
+estava em `gpt-6-sol`, e todas as rodadas foram para o modelo antigo sem ninguém
+notar. Nome de modelo envelhece; a configuração, não.
+
+Quando precisar escolher explicitamente, o critério é o TAMANHO da tarefa, e os
+nomes seguem o padrão `<família>-terra` / `<família>-sol`:
+
+- **`-terra`** — tarefa **simples**: CRUD, script isolado, ajuste localizado,
   boilerplate, correção de bug óbvio, arquivo único.
-- `gpt-5.6-sol` — tarefa **complexa**: multi-arquivo, refactor, decisão de
+- **`-sol`** — tarefa **complexa**: multi-arquivo, refactor, decisão de
   arquitetura, concorrência, performance, segurança, bug de causa não óbvia.
 
 Esforço **padrão médio**: `-c model_reasoning_effort=medium`.
@@ -67,7 +80,7 @@ nova recarrega o piso fixo (~94k: system prompt + tools + skills) **mais** a per
 - é correção de um achado da revisão.
 
 Ao resumir: **não** reinjete a persona (a sessão já a tem) — passe só a nova
-instrução. Mesmo `-m` e effort da sessão. Sandbox via `-c sandbox_mode="workspace-write"`,
+instrução, com o mesmo modelo e effort da sessão. Sandbox via `-c sandbox_mode="workspace-write"`,
 dir herdado (resume não aceita `--sandbox`/`-C`).
 
 **`codex exec` fresco** (sessão nova) quando:
@@ -77,7 +90,7 @@ dir herdado (resume não aceita `--sandbox`/`-C`).
   Fio de trabalho coerente → resume; troca de assunto ou sessão inchada → fresco.
 
 O bloco abaixo (persona + tarefa via stdin) é o caminho da **sessão nova**. Pro
-resume, pule a persona e rode `codex exec resume --last -c sandbox_mode="workspace-write" -m <mesmo> -o /tmp/codex-last.md "<nova instrução>"`.
+resume, pule a persona e rode `codex exec resume --last -c sandbox_mode="workspace-write" -o /tmp/codex-last.md "<nova instrução>"`.
 
 ### Sessão nova (persona + tarefa)
 
@@ -97,7 +110,7 @@ EOF
 
 codex exec --sandbox workspace-write \
   --skip-git-repo-check -C "<dir>" \
-  -m gpt-5.6-sol -c model_reasoning_effort=medium \
+  -c model_reasoning_effort=medium \
   -o /tmp/codex-last.md - < /tmp/codex-prompt.txt
 ```
 
