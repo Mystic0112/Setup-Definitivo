@@ -86,9 +86,9 @@ export const CATALOG = CatalogSchema.parse([
   // repo. Depende do CLI (tool:dev-browser): a skill sozinha não faz nada.
   { id: "skill:dev-browser", kind: "skill", name: "dev-browser", description: "Automação de navegador com páginas nomeadas persistentes: navega, preenche formulário, extrai dados e tira screenshot. Só Chromium — não dirige Firefox/Zen.", targets: ["global", "project"], requires: ["tool:dev-browser"], source: { type: "git", repo: "https://github.com/sawyerhood/dev-browser", ref: "main", subdir: "skills/dev-browser" }, needsSecret: false },
 
-  // ── Playbooks de pentest (Strix, Apache-2.0 — ver assets/playbooks/ATTRIBUTION.md)
+  // ── Playbooks de pentest (Strix Apache-2.0 + adições claude-red MIT em custom/ — ver assets/playbooks/ATTRIBUTION.md)
   // O agent:security depende deles: referencia os arquivos por caminho.
-  { id: "skill:strix-playbooks", kind: "skill", name: "Playbooks de pentest (Strix)", description: "63 playbooks por vulnerabilidade, framework, cloud e protocolo. Usados pelo agent:security.", targets: ["global"], source: { type: "local", path: "assets/playbooks" }, needsSecret: false },
+  { id: "skill:strix-playbooks", kind: "skill", name: "Playbooks de pentest (Strix)", description: "67 playbooks por vulnerabilidade, framework, cloud, protocolo — mais rede interna, mobile, cripto, fuzzing e privesc (red team). Usados pelo agent:security.", targets: ["global"], source: { type: "local", path: "assets/playbooks" }, needsSecret: false },
 
   // ── Plugins de marketplace (o harness instala; nada é redistribuído) ────
   { id: "plugin:caveman", kind: "plugin", name: "caveman (estilo terso)", description: "Respostas compactas, sem perder substância técnica. Instalado em 'lite': sem enrolação, mantendo frases completas.", targets: ["global"], harnesses: ["claude"], needsSecret: false, plugin: { marketplace: "JuliusBrussee/caveman", name: "caveman", defaultLevel: "lite" } },

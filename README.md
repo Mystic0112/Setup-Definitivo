@@ -142,9 +142,11 @@ CDP na versão 129 e não são alcançáveis.
 **Obsidian / grafo de conhecimento**:
 `obsidian-cli` · `obsidian-markdown` · `obsidian-bases` · `json-canvas`
 
-**Pentest**: `strix-playbooks` — 63 playbooks por vulnerabilidade, framework, cloud e protocolo.
-Do [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0, com
-[atribuição](assets/playbooks/ATTRIBUTION.md)). O `agent:security` depende deles.
+**Pentest**: `strix-playbooks` — 67 playbooks por vulnerabilidade, framework, cloud e
+protocolo, mais rede interna, mobile, cripto, fuzzing e privesc (red team). Do
+[usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0) e do
+[SnailSploit/claude-red](https://github.com/SnailSploit/claude-red) (MIT, adições em
+`custom/`), com [atribuição](assets/playbooks/ATTRIBUTION.md). O `agent:security` depende deles.
 
 </details>
 
