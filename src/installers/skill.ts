@@ -15,7 +15,7 @@ interface SkillPaths {
   cloneRoot?: string;
 }
 
-function localSourceDir(item: Item, root: string): string {
+export function localSourceDir(item: Item, root: string): string {
   if (item.source?.type !== "local") throw new Error(`${item.id}: source local esperado.`);
   const source = path.resolve(root, item.source.path);
   if (!source.startsWith(root + path.sep)) {

@@ -39,7 +39,9 @@ export const ItemSchema = z.object({
   // command); `skill` é um diretório com SKILL.md. Destinos diferentes no harness.
   // `plugin` é instalado pelo gerenciador do próprio harness a partir de um
   // marketplace — não copiamos o conteúdo, só registramos a fonte.
-  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config"]),
+  // `hook` copia um script + semeia dados do usuário E patcha settings.json
+  // (bloco hooks.*) — é Claude-específico; degrada onde não há settings.json.
+  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config", "hook"]),
   name: z.string(),
   description: z.string(),
   targets: z.array(TargetSchema).nonempty(),

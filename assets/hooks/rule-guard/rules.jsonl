@@ -1,0 +1,5 @@
+# Regras do rule-guard. Uma regra por linha (JSON compacto). Linhas com # são
+# ignoradas. Use /rule para acrescentar regras; este arquivo é SEU e nunca é
+# sobrescrito num update. Exemplos (descomente para ativar):
+# {"id": "no-var-dump-php", "glob": "**/*.php", "forbid": "var_dump\\(", "message": "var_dump em PHP: use dd()/logger e remova o debug antes de escrever o arquivo.", "severity": "block"}
+# {"id": "no-console-log-vue", "glob": "**/*.vue", "forbid": "console\\.log\\(", "message": "console.log em .vue: remova o debug antes de entregar.", "severity": "warn"}

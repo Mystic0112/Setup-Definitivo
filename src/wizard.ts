@@ -29,7 +29,7 @@ const CATEGORIES: { label: string; hint: string; kinds: Item["kind"][] }[] = [
   { label: "Plugins", hint: "instalados pelo marketplace do harness", kinds: ["plugin"] },
   { label: "Skills", hint: "conhecimento carregado sob demanda", kinds: ["skill"] },
   { label: "Ferramentas", hint: "dependências externas da máquina", kinds: ["tool"] },
-  { label: "Configuração", hint: "instruções base e permissões", kinds: ["config"] },
+  { label: "Configuração", hint: "instruções, permissões e hooks", kinds: ["config", "hook"] },
 ];
 
 /** Item faz sentido em pelo menos um dos harnesses escolhidos. */

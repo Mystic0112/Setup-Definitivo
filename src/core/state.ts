@@ -29,11 +29,20 @@ const ArtifactSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("mcp-cli"), name: z.string(), command: z.string() }),
   z.object({ type: z.literal("tool"), command: z.string() }),
   z.object({ type: z.literal("settings"), path: AbsolutePathSchema, keys: z.array(z.string()) }),
+  // Uma entrada de hook em settings.json (ex.: hooks.PreToolUse[]). Reversível:
+  // guarda o array e a entrada exata que adicionamos para removê-la sozinha,
+  // sem tocar nas outras entradas nem no resto do settings.
+  z.object({
+    type: z.literal("settings-hook"),
+    path: AbsolutePathSchema,
+    event: z.string(),
+    entry: z.string(),
+  }),
 ]);
 
 const StateEntrySchema = z.object({
   itemId: z.string(),
-  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config"]),
+  kind: z.enum(["mcp", "skill", "agent", "command", "plugin", "tool", "config", "hook"]),
   harness: HarnessSchema,
   target: TargetSchema,
   projectRoot: AbsolutePathSchema.nullable(),

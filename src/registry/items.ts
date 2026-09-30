@@ -20,6 +20,7 @@ export const CATALOG = CatalogSchema.parse([
   { id: "agent:pm", kind: "agent", name: "PM (Pam)", description: "Planejamento, estimativas, documentação técnica.", targets: ["global", "project"], source: { type: "local", path: "assets/agents/pm.md" }, needsSecret: false },
   { id: "agent:lead", kind: "agent", name: "Lead (Leo)", description: "Coordenação multi-domínio; orquestra os demais.", targets: ["global", "project"], source: { type: "local", path: "assets/agents/lead.md" }, needsSecret: false },
   { id: "agent:agent-builder", kind: "agent", name: "Agent Builder (Vera)", description: "Cria outros agentes seguindo a arquitetura do squad: frontmatter, persona, regras e skills sob demanda.", targets: ["global", "project"], source: { type: "local", path: "assets/agents/agent-builder.md" }, needsSecret: false },
+  { id: "agent:knowledge", kind: "agent", name: "Knowledge (Senku)", description: "Engenharia de conhecimento e retrieval: knowledge graphs/GraphRAG, RAG, embeddings, vector search, memória de agente, context engineering.", targets: ["global", "project"], source: { type: "local", path: "assets/agents/knowledge.md" }, needsSecret: false },
 
   // ── Squad: commands (slash command que invoca o subagente) ──────────────
   { id: "command:backend", kind: "command", name: "/backend — Backend (Bruno)", description: "Slash command que invoca o subagente backend.", targets: ["global", "project"], requires: ["agent:backend"], source: { type: "local", path: "assets/commands/backend.md" }, needsSecret: false },
@@ -35,6 +36,7 @@ export const CATALOG = CatalogSchema.parse([
   { id: "command:pm", kind: "command", name: "/pm — PM (Pam)", description: "Slash command que invoca o subagente pm.", targets: ["global", "project"], requires: ["agent:pm"], source: { type: "local", path: "assets/commands/pm.md" }, needsSecret: false },
   { id: "command:lead", kind: "command", name: "/lead — Lead (Leo)", description: "Slash command que invoca o subagente lead.", targets: ["global", "project"], requires: ["agent:lead"], source: { type: "local", path: "assets/commands/lead.md" }, needsSecret: false },
   { id: "command:agent-builder", kind: "command", name: "/agent-builder — Agent Builder (Vera)", description: "Slash command que invoca o subagente agent-builder.", targets: ["global", "project"], requires: ["agent:agent-builder"], source: { type: "local", path: "assets/commands/agent-builder.md" }, needsSecret: false },
+  { id: "command:knowledge", kind: "command", name: "/knowledge — Knowledge (Senku)", description: "Slash command que invoca o subagente knowledge.", targets: ["global", "project"], requires: ["agent:knowledge"], source: { type: "local", path: "assets/commands/knowledge.md" }, needsSecret: false },
 
   // ── Design & UI ─────────────────────────────────────────────────────────
   // taste-skill: MIT, github.com/leonxlnx/taste-skill. É um plugin com marketplace,
@@ -81,6 +83,7 @@ export const CATALOG = CatalogSchema.parse([
   { id: "skill:obsidian-markdown", kind: "skill", name: "obsidian-markdown", description: "Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties e frontmatter.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-markdown" }, needsSecret: false },
   { id: "skill:obsidian-bases", kind: "skill", name: "obsidian-bases", description: "Obsidian Bases (.base): views, filtros, fórmulas e agregações sobre notas.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/obsidian-bases" }, needsSecret: false },
   { id: "skill:skill-builder", kind: "skill", name: "skill-builder", description: "Cria novas skills com frontmatter e estrutura corretos.", targets: ["global", "project"], source: { type: "local", path: "assets/skills/skill-builder" }, needsSecret: false },
+  { id: "skill:rule", kind: "skill", name: "rule", description: "Traduz um pedido (/rule) numa regra JSONL que o hook rule-guard passa a impor em toda escrita de arquivo.", targets: ["global"], harnesses: ["claude"], source: { type: "local", path: "assets/skills/rule" }, needsSecret: false },
   // dev-browser: MIT, github.com/sawyerhood/dev-browser. Vem por git em vez de
   // assets/ para acompanhar o upstream — o autor publica a SKILL.md no próprio
   // repo. Depende do CLI (tool:dev-browser): a skill sozinha não faz nada.
@@ -106,6 +109,13 @@ export const CATALOG = CatalogSchema.parse([
   // o primeiro uso morre com "Embedded daemon dependencies are missing".
   // Plataformas: macOS e Linux glibc. Windows e Linux musl não são suportados.
   { id: "tool:dev-browser", kind: "tool", name: "dev-browser (CLI de navegador)", description: "CLI que controla o Chromium por scripts. Baixa ~280 MB de navegador na instalação. Só macOS e Linux glibc.", targets: ["global"], needsSecret: false, tool: { cmd: "sh", args: ["-c", "npm install -g dev-browser && dev-browser install"] } },
+
+  // ── Hooks (Claude) ──────────────────────────────────────────────────────────
+  // rule-guard: hook PreToolUse (stdlib pura, fail-open) que NEGA Write/Edit/
+  // MultiEdit cujo conteúdo novo case uma regra em ~/.claude/rules.jsonl. Depende
+  // da skill:rule, que registra as regras. Semeia rules.jsonl (regras de exemplo
+  // comentadas) só se ausente — nunca sobrescreve as regras do usuário.
+  { id: "hook:rule-guard", kind: "hook", name: "rule-guard (bloqueio por regra)", description: "Hook PreToolUse que bloqueia escrita de arquivo (Write/Edit/MultiEdit) violando regras em ~/.claude/rules.jsonl. Registre regras com /rule.", targets: ["global"], harnesses: ["claude"], requires: ["skill:rule"], source: { type: "local", path: "assets/hooks/rule-guard" }, needsSecret: false },
 
   // ── Config ────────────────────────────────────────────────────────────────
   {

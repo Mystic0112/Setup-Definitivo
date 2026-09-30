@@ -11,6 +11,7 @@ import {
   skillName,
 } from "../installers/skill.js";
 import { installMarkdownFile, markdownFileAsInstruction } from "../installers/markdownFile.js";
+import { installHook } from "../installers/hook.js";
 import { installClaudePlugin } from "../installers/plugin.js";
 import { removeStateEntry } from "../installers/remove.js";
 import { roleSkillContent } from "../generators/roles.js";
@@ -142,6 +143,22 @@ async function applyMarkdownFile(
   );
 }
 
+/**
+ * Hook = copiar script + semear dados + patchar settings.json. Só faz sentido
+ * onde há settings.json (Claude); nos demais degrada com aviso, como o resto.
+ */
+async function applyHook(
+  options: AdapterOptions,
+  item: Item,
+  ctx: ApplyContext
+): Promise<ItemResult> {
+  if (!options.settings) {
+    return itemResult(item.id, `PULADO ${item.id}: ${options.id} não suporta hooks (sem settings.json)`);
+  }
+  const { message, artifacts } = await installHook(item, options.id, ctx.target, ctx.dryRun);
+  return itemResult(item.id, message, artifacts.length ? artifacts : undefined);
+}
+
 async function applyItem(
   options: AdapterOptions,
   item: Item,
@@ -177,6 +194,8 @@ async function applyItem(
       return itemResult(item.id, `PULADO ${item.id}: tools são aplicadas fora do adapter`);
     case "config":
       return applyConfig(options, item, ctx);
+    case "hook":
+      return applyHook(options, item, ctx);
   }
 }
 

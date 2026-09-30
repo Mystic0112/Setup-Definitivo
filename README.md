@@ -73,10 +73,10 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 
 ## 📦 Catálogo
 
-**61 itens** organizados em 7 categorias. O wizard pergunta uma categoria por vez.
+**65 itens** organizados em 8 categorias. O wizard pergunta uma categoria por vez.
 
 <details open>
-<summary><b>🧠 Agentes (13)</b> — especialistas por domínio</summary>
+<summary><b>🧠 Agentes (14)</b> — especialistas por domínio</summary>
 
 | id | Domínio |
 |---|---|
@@ -93,6 +93,7 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 | `agent:pm` | Planejamento, estimativas, documentação |
 | `agent:lead` | Coordenação multi-domínio; orquestra os demais |
 | `agent:agent-builder` | **Cria outros agentes** seguindo esta mesma arquitetura |
+| `agent:knowledge` | Knowledge graphs/GraphRAG, RAG, embeddings, vector search, context engineering |
 
 Cada agente tem um **slash command** correspondente (`command:backend` → `/backend`), que declara
 dependência do agente — marcar o command puxa o agente junto.
@@ -116,7 +117,7 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 </details>
 
 <details>
-<summary><b>📚 Skills (22)</b> — conhecimento carregado sob demanda</summary>
+<summary><b>📚 Skills (23)</b> — conhecimento carregado sob demanda</summary>
 
 **Referência técnica** (os agentes carregam quando a tarefa pede):
 `php-laravel-ref` · `react-ref` · `frontend-ref` · `db-engines-ref` · `owasp-laravel-ref` ·
@@ -124,7 +125,7 @@ Plugins vêm pelo **marketplace do harness** — nada de terceiro é redistribu�
 `api-docs-ref`
 
 **Produtividade**:
-`codex-code` · `defuddle` · `notebooklm` · `skill-builder` · `dev-browser`
+`codex-code` · `defuddle` · `notebooklm` · `skill-builder` · `rule` · `dev-browser`
 
 `dev-browser` vem por git de [sawyerhood/dev-browser](https://github.com/sawyerhood/dev-browser)
 (MIT), não de `assets/` — assim acompanha o upstream. Depende do `tool:dev-browser`, que instala
@@ -147,6 +148,16 @@ protocolo, mais rede interna, mobile, cripto, fuzzing e privesc (red team). Do
 [usestrix/strix](https://github.com/usestrix/strix) (Apache-2.0) e do
 [SnailSploit/claude-red](https://github.com/SnailSploit/claude-red) (MIT, adições em
 `custom/`), com [atribuição](assets/playbooks/ATTRIBUTION.md). O `agent:security` depende deles.
+
+</details>
+
+<details>
+<summary><b>🪝 Hooks (1)</b> — enforcement no harness (Claude)</summary>
+
+`hook:rule-guard` — hook `PreToolUse` que **bloqueia** escrita de arquivo (Write/Edit/MultiEdit)
+violando regras em `~/.claude/rules.jsonl`. Stdlib pura, fail-open. Registre regras com a skill
+`rule` (`/rule "proibir X em <glob>: motivo"`); a semente com regras de exemplo só é escrita se o
+arquivo não existir — nunca sobrescreve as tuas. Só Claude (Cursor/Codex não têm settings.json).
 
 </details>
 

@@ -143,6 +143,43 @@ async function preflightCursorMcp(
   };
 }
 
+async function preflightSettingsHook(
+  artifact: Extract<Artifact, { type: "settings-hook" }>
+): Promise<PreflightResult> {
+  if (!(await exists(artifact.path))) return { alreadyAbsent: `arquivo já ausente: ${artifact.path}` };
+  const currentText = await fs.readFile(artifact.path, "utf-8");
+  let current: unknown;
+  try {
+    current = JSON.parse(currentText);
+  } catch {
+    return { refusal: `RECUSADO: JSON inválido em ${artifact.path}` };
+  }
+  if (!isObject(current) || !isObject(current.hooks)) {
+    return { alreadyAbsent: `hook já ausente: ${artifact.event} em ${artifact.path}` };
+  }
+  const events = { ...(current.hooks as Record<string, unknown>) };
+  const list = events[artifact.event];
+  if (!Array.isArray(list)) return { alreadyAbsent: `hook já ausente: ${artifact.event}` };
+  // Casa a entrada EXATA que instalamos; se o usuário a editou, não casa e a
+  // deixamos intacta (fail-safe — não removemos o que não reconhecemos).
+  const kept = list.filter((el) => JSON.stringify(el) !== artifact.entry);
+  if (kept.length === list.length) return { alreadyAbsent: `hook já ausente: ${artifact.event}` };
+
+  if (kept.length) events[artifact.event] = kept;
+  else delete events[artifact.event];
+  const hooks = { ...current };
+  if (Object.keys(events).length) hooks.hooks = events;
+  else delete hooks.hooks;
+  const updated = JSON.stringify(hooks, null, 2) + "\n";
+
+  return {
+    action: {
+      message: `remover hook ${artifact.event} -> ${artifact.path}`,
+      run: () => writeIfUnchanged(artifact.path, currentText, updated),
+    },
+  };
+}
+
 function tomlSectionRange(
   content: string,
   artifact: Extract<Artifact, { type: "toml-section" }>
@@ -222,6 +259,7 @@ async function preflightArtifact(artifact: Artifact): Promise<PreflightResult> {
     case "block": return preflightBlock(artifact);
     case "mcp": return preflightCursorMcp(artifact);
     case "toml-section": return preflightCodexMcp(artifact);
+    case "settings-hook": return preflightSettingsHook(artifact);
     case "mcp-cli":
       return { refusal: `RECUSADO: remova manualmente com: ${artifact.command}` };
     case "tool":

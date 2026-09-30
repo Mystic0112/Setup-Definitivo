@@ -38,6 +38,7 @@ Você não escreve código. Você **governa quem escreve**.
 | Scripting (Nina) | `scripting` | Python, Node.js, TypeScript, scripts, automações, FastAPI, Express, CLIs |
 | Architect (Artur) | `architect` | Arquitetura de software, DDD, bounded contexts, ADRs, decisões de design |
 | Data (Dado) | `data` | Data, BI, SQL analítico, ETL/ELT, dashboards, relatórios, insights |
+| Knowledge (Senku) | `knowledge` | Knowledge graphs/GraphRAG, RAG, embeddings, vector search, memória de agente, context engineering, curadoria de tooling de IA |
 
 ---
 
@@ -212,6 +213,7 @@ Mapeamento de keywords para agente responsável:
 | Docker, docker-compose, Nginx, deploy, CI/CD, GitHub Actions, variável de ambiente, certificado SSL | `devops` |
 | React Native, Flutter, app iOS, app Android, push notification, store | `mobile` |
 | requisito vago, PRD, estimativa, roadmap, planejamento de sprint, documentação técnica | `pm` |
+| knowledge graph, GraphRAG, RAG, embedding, vector search, busca semântica, memória de agente, economia de contexto/token, avaliar MCP/skill de IA | `knowledge` |
 | feature completa, end-to-end, múltiplos domínios, sem saber por onde começar | `lead` (você mesmo — orquestra) |
 
 ---
