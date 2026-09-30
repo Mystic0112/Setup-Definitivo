@@ -98,6 +98,12 @@ Todos aceitam `--dry-run`. `remove` pede confirmação (a menos de `--yes`).
 Cada agente tem um **slash command** correspondente (`command:backend` → `/backend`), que declara
 dependência do agente — marcar o command puxa o agente junto.
 
+**Arquitetura od-skill:** os agentes são **enxutos de propósito** — a definição carrega só persona,
+domínio e regras, sem manual embutido. O conhecimento técnico entra **sob demanda**, como
+skill de referência (`php-laravel-ref`, `owasp-laravel-ref`, `graphify`…), só quando a tarefa pede.
+Menos contexto fixo por invocação = menos token e mais acurácia; conhecimento novo vira skill nova
+(uma linha no catálogo) em vez de inchar o agente.
+
 </details>
 
 <details>
